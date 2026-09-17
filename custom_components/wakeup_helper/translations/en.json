@@ -1,0 +1,102 @@
+{
+  "title": "Wakeup Helper",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add a sleep routine",
+        "description": "Choose the kind of routine you want to create. You can add more routines later.",
+        "data": {
+          "routine_type": "Routine type"
+        }
+      },
+      "nap": {
+        "title": "Set up nap mode",
+        "description": "Starting this routine closes the covers and turns off the lights. The covers open when the nap ends.",
+        "data": {
+          "name": "Name",
+          "lights": "Lights",
+          "covers": "Covers",
+          "duration": "Initial duration"
+        },
+        "data_description": {
+          "name": "Use a name that identifies the room or person.",
+          "duration": "You can change this later from the device or a dashboard."
+        }
+      },
+      "wakeup": {
+        "title": "Set up a wake-up light",
+        "description": "The selected lights gradually brighten and reach the chosen brightness at the alarm time.",
+        "data": {
+          "name": "Name",
+          "lights": "Lights",
+          "alarm_time": "Initial alarm time",
+          "fade_duration": "Initial fade-in duration",
+          "brightness": "Initial end brightness",
+          "alarm_script": "Script to run at alarm time"
+        },
+        "data_description": {
+          "name": "Use a name that identifies the room or person.",
+          "alarm_script": "Optional. Use a script for music, covers, announcements, or other actions."
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Edit routine targets",
+        "description": "Change which room entities this routine controls.",
+        "data": {
+          "lights": "Lights",
+          "covers": "Covers",
+          "alarm_script": "Script to run at alarm time"
+        },
+        "data_description": {
+          "alarm_script": "Optional. Clear this field to stop running a script."
+        }
+      }
+    }
+  },
+  "entity": {
+    "number": {
+      "nap_duration": {
+        "name": "Duration"
+      },
+      "fade_duration": {
+        "name": "Fade-in duration"
+      },
+      "end_brightness": {
+        "name": "End brightness"
+      }
+    },
+    "time": {
+      "alarm_time": {
+        "name": "Alarm time"
+      }
+    },
+    "sensor": {
+      "nap_status": {
+        "name": "Status",
+        "state": {
+          "off": "Off",
+          "napping": "Napping"
+        }
+      },
+      "nap_ends": {
+        "name": "Ends"
+      },
+      "wakeup_status": {
+        "name": "Status",
+        "state": {
+          "off": "Off",
+          "waiting": "Waiting",
+          "waking": "Waking up",
+          "alarm": "Alarm"
+        }
+      },
+      "next_alarm": {
+        "name": "Next alarm"
+      }
+    }
+  }
+}

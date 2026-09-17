@@ -1,0 +1,102 @@
+{
+  "title": "Wakeup Helper",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Schlafroutine hinzufügen",
+        "description": "Wähle aus, welche Routine du erstellen möchtest. Weitere Routinen können später hinzugefügt werden.",
+        "data": {
+          "routine_type": "Art der Routine"
+        }
+      },
+      "nap": {
+        "title": "Nickerchen einrichten",
+        "description": "Beim Start werden die Rollos geschlossen und die Lichter ausgeschaltet. Am Ende werden die Rollos geöffnet.",
+        "data": {
+          "name": "Name",
+          "lights": "Lichter",
+          "covers": "Rollos",
+          "duration": "Anfängliche Dauer"
+        },
+        "data_description": {
+          "name": "Verwende einen Namen, der das Zimmer oder die Person beschreibt.",
+          "duration": "Dieser Wert kann später am Gerät oder im Dashboard geändert werden."
+        }
+      },
+      "wakeup": {
+        "title": "Aufwachlicht einrichten",
+        "description": "Die ausgewählten Lichter werden langsam heller und erreichen zur Weckzeit die gewünschte Helligkeit.",
+        "data": {
+          "name": "Name",
+          "lights": "Lichter",
+          "alarm_time": "Anfängliche Weckzeit",
+          "fade_duration": "Anfängliche Aufblenddauer",
+          "brightness": "Anfängliche Endhelligkeit",
+          "alarm_script": "Skript zur Weckzeit"
+        },
+        "data_description": {
+          "name": "Verwende einen Namen, der das Zimmer oder die Person beschreibt.",
+          "alarm_script": "Optional. Ein Skript kann Musik, Rollos, Ansagen oder andere Aktionen starten."
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Ziele der Routine bearbeiten",
+        "description": "Ändere, welche Geräte im Zimmer von dieser Routine gesteuert werden.",
+        "data": {
+          "lights": "Lichter",
+          "covers": "Rollos",
+          "alarm_script": "Skript zur Weckzeit"
+        },
+        "data_description": {
+          "alarm_script": "Optional. Leere dieses Feld, um kein Skript mehr auszuführen."
+        }
+      }
+    }
+  },
+  "entity": {
+    "number": {
+      "nap_duration": {
+        "name": "Dauer"
+      },
+      "fade_duration": {
+        "name": "Aufblenddauer"
+      },
+      "end_brightness": {
+        "name": "Endhelligkeit"
+      }
+    },
+    "time": {
+      "alarm_time": {
+        "name": "Weckzeit"
+      }
+    },
+    "sensor": {
+      "nap_status": {
+        "name": "Status",
+        "state": {
+          "off": "Aus",
+          "napping": "Nickerchen"
+        }
+      },
+      "nap_ends": {
+        "name": "Endet"
+      },
+      "wakeup_status": {
+        "name": "Status",
+        "state": {
+          "off": "Aus",
+          "waiting": "Wartet",
+          "waking": "Aufwachen",
+          "alarm": "Wecker"
+        }
+      },
+      "next_alarm": {
+        "name": "Nächster Wecker"
+      }
+    }
+  }
+}

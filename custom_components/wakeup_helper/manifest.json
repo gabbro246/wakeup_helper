@@ -1,0 +1,12 @@
+{
+  "domain": "wakeup_helper",
+  "name": "Wakeup Helper",
+  "codeowners": ["@gabbro246"],
+  "config_flow": true,
+  "documentation": "https://github.com/gabbro246/wakeup_helper",
+  "integration_type": "helper",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/gabbro246/wakeup_helper/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}
