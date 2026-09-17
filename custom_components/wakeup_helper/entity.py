@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from homeassistant.core import callback
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity import Entity
 
@@ -23,6 +24,7 @@ class WakeupHelperEntity(Entity):
         key: str,
     ) -> None:
         self._entry = entry
+        self._key = key
         self.controller = controller
         self._attr_unique_id = f"{entry.entry_id}_{key}"
         routine_type = entry.data["routine_type"]
@@ -35,6 +37,13 @@ class WakeupHelperEntity(Entity):
 
     async def async_added_to_hass(self) -> None:
         """Subscribe to runtime state changes."""
+        self.controller.async_register_entity(self._key, self.entity_id)
         self.async_on_remove(
             self.controller.async_add_listener(self.async_write_ha_state)
         )
+        self.async_on_remove(self._async_unregister_entity)
+
+    @callback
+    def _async_unregister_entity(self) -> None:
+        """Remove this entity from the card's entity map."""
+        self.controller.async_unregister_entity(self._key)

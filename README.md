@@ -10,7 +10,9 @@ helpers or blueprint automations.
 - Create any number of nap mode and wake-up light devices.
 - Configure everything in the Home Assistant interface.
 - Control each routine with normal switch, time, number, and sensor entities.
-- Build dashboards with built-in Home Assistant cards—no custom card required.
+- Use the included Wakeup Helper dashboard card with no separate HACS card
+  dependency.
+- See live countdowns on the card and through remaining-time sensor entities.
 - Keep active naps and enabled alarms across Home Assistant restarts.
 - Optionally run a script when a wake-up light reaches its alarm time.
 - Fire a `wakeup_helper_wakeup` event at every alarm time for advanced automations.
@@ -27,6 +29,7 @@ Entities:
 - Duration
 - Status
 - Nap ends
+- Remaining time
 
 ### Wake-up light
 
@@ -42,6 +45,7 @@ Entities:
 - End brightness
 - Status
 - Next alarm
+- Remaining time
 
 ## Installation with HACS
 
@@ -67,6 +71,28 @@ and choose **Configure**.
 
 ## Dashboard examples
 
+The integration automatically loads its own dashboard card. In dashboard edit
+mode, add the **Wakeup Helper** card and select the routine's switch. The card
+finds the other entities belonging to that routine automatically.
+
+The equivalent YAML is:
+
+~~~yaml
+type: custom:wakeup-helper-card
+entity: switch.bedroom_wake_up_light
+~~~
+
+For a nap:
+
+~~~yaml
+type: custom:wakeup-helper-card
+entity: switch.bedroom_nap
+~~~
+
+The card provides an on/off button, a live countdown, and inline controls for
+time, duration, and brightness. No separate frontend resource or custom card
+from HACS is needed.
+
 The generated entity IDs depend on the name chosen during setup. Replace the
 example IDs below with the entities shown on your routine's device page.
 
@@ -77,6 +103,7 @@ entities:
   - entity: switch.bedroom_nap
   - entity: number.bedroom_nap_duration
   - entity: sensor.bedroom_nap_status
+  - entity: sensor.bedroom_nap_remaining
   - entity: sensor.bedroom_nap_ends
 ```
 
@@ -89,6 +116,7 @@ entities:
   - entity: number.bedroom_wake_up_light_fade_in_duration
   - entity: number.bedroom_wake_up_light_end_brightness
   - entity: sensor.bedroom_wake_up_light_status
+  - entity: sensor.bedroom_wake_up_light_remaining
   - entity: sensor.bedroom_wake_up_light_next_alarm
 ```
 

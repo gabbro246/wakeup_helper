@@ -1,25 +1,17 @@
 # Replace these entity IDs with the ones created for your routines.
 
 nap_mode:
-  type: entities
-  title: Bedroom nap
-  show_header_toggle: false
-  entities:
-    - entity: switch.bedroom_nap
-      name: Nap mode
-    - entity: number.bedroom_nap_duration
-    - entity: sensor.bedroom_nap_status
-    - entity: sensor.bedroom_nap_ends
+  type: custom:wakeup-helper-card
+  entity: switch.bedroom_nap
 
 wake_up_light:
-  type: entities
-  title: Bedroom wake-up light
-  show_header_toggle: false
-  entities:
-    - entity: switch.bedroom_wake_up_light
-      name: Wake-up light
-    - entity: time.bedroom_wake_up_light_alarm_time
-    - entity: number.bedroom_wake_up_light_fade_in_duration
-    - entity: number.bedroom_wake_up_light_end_brightness
-    - entity: sensor.bedroom_wake_up_light_status
-    - entity: sensor.bedroom_wake_up_light_next_alarm
+  type: custom:wakeup-helper-card
+  entity: switch.bedroom_wake_up_light
+
+# If you renamed individual entities, point the card at them explicitly:
+# alarm_time_entity: time.my_alarm
+# duration_entity: number.my_fade_duration
+# brightness_entity: number.my_brightness
+# status_entity: sensor.my_status
+# end_entity: sensor.my_next_alarm
+# remaining_entity: sensor.my_remaining

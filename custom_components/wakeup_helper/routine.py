@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import math
 from collections.abc import Callable
 from datetime import datetime, time, timedelta
 from typing import Any
@@ -10,7 +11,10 @@ from typing import Any
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers.event import async_track_point_in_time
+from homeassistant.helpers.event import (
+    async_track_point_in_time,
+    async_track_time_interval,
+)
 from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
@@ -54,10 +58,12 @@ class RoutineController:
         self.entry = entry
         self._listeners: set[Listener] = set()
         self._stored: dict[str, Any] = {}
+        self.entity_ids: dict[str, str] = {}
         self._store = Store[dict[str, Any]](
             hass, STORAGE_VERSION, f"{DOMAIN}.{entry.entry_id}"
         )
         self._cancel_schedule: Callable[[], None] | None = None
+        self._cancel_clock: Callable[[], None] | None = None
 
     @property
     def config(self) -> dict[str, Any]:
@@ -76,6 +82,7 @@ class RoutineController:
     async def async_shutdown(self) -> None:
         """Stop callbacks and save persistent state."""
         self._cancel_timer()
+        self._stop_clock()
         await self._store.async_save(self._storage_data())
 
     @callback
@@ -96,6 +103,20 @@ class RoutineController:
             listener()
 
     @callback
+    def async_register_entity(self, key: str, entity_id: str) -> None:
+        """Expose an entity ID to the bundled dashboard card."""
+        if self.entity_ids.get(key) == entity_id:
+            return
+        self.entity_ids[key] = entity_id
+        self._notify()
+
+    @callback
+    def async_unregister_entity(self, key: str) -> None:
+        """Remove an entity ID from the dashboard card map."""
+        if self.entity_ids.pop(key, None) is not None:
+            self._notify()
+    @callback
+
     def _save_later(self) -> None:
         """Persist state after closely grouped changes settle."""
         self._store.async_delay_save(self._storage_data, 1)
@@ -110,6 +131,26 @@ class RoutineController:
         if self._cancel_schedule is not None:
             self._cancel_schedule()
             self._cancel_schedule = None
+
+    @callback
+    def _start_clock(self) -> None:
+        """Update remaining-time entities once a minute."""
+        self._stop_clock()
+        self._cancel_clock = async_track_time_interval(
+            self.hass, self._handle_clock, timedelta(minutes=1)
+        )
+
+    @callback
+    def _stop_clock(self) -> None:
+        """Stop remaining-time updates."""
+        if self._cancel_clock is not None:
+            self._cancel_clock()
+            self._cancel_clock = None
+
+    @callback
+    def _handle_clock(self, _now: datetime) -> None:
+        """Publish a fresh remaining-time value."""
+        self._notify()
 
     async def _async_call_target(
         self,
@@ -151,6 +192,13 @@ class NapController(RoutineController):
         """Return configured cover entity IDs."""
         return list(self.config.get(CONF_COVERS, []))
 
+    @property
+    def remaining_seconds(self) -> int | None:
+        """Return whole seconds until the active nap ends."""
+        if not self.active or self.end_at is None:
+            return None
+        return max(0, math.ceil((self.end_at - dt_util.now()).total_seconds()))
+
     async def async_initialize(self) -> None:
         """Restore the nap state and timer."""
         await super().async_initialize()
@@ -174,6 +222,7 @@ class NapController(RoutineController):
             await self.async_turn_off()
         else:
             self._schedule_end()
+            self._start_clock()
 
     def _storage_data(self) -> dict[str, Any]:
         return {
@@ -195,6 +244,7 @@ class NapController(RoutineController):
         self.active = True
         self.end_at = dt_util.now() + timedelta(minutes=self.duration)
         self._schedule_end()
+        self._start_clock()
         self._save_later()
         self._notify()
         await self._async_call_target("cover", "close_cover", self.covers)
@@ -205,6 +255,7 @@ class NapController(RoutineController):
         if not self.active:
             return
         self._cancel_timer()
+        self._stop_clock()
         self.active = False
         self.end_at = None
         self._save_later()
@@ -235,6 +286,13 @@ class WakeupController(RoutineController):
     brightness: int
     status: str
     next_alarm: datetime | None
+
+    @property
+    def remaining_seconds(self) -> int | None:
+        """Return whole seconds until the next enabled alarm."""
+        if not self.enabled or self.next_alarm is None:
+            return None
+        return max(0, math.ceil((self.next_alarm - dt_util.now()).total_seconds()))
 
     async def async_initialize(self) -> None:
         """Restore settings and schedule the next alarm."""
@@ -309,12 +367,14 @@ class WakeupController(RoutineController):
         """Schedule the next fade step or alarm."""
         self._cancel_timer()
         if not self.enabled:
+            self._stop_clock()
             self.status = "off"
             self.next_alarm = None
             self._notify()
             return
 
         now = dt_util.now()
+        self._start_clock()
         self.next_alarm = self._find_next_alarm(now)
         fade_start = self.next_alarm - timedelta(minutes=self.fade_duration)
         if now < fade_start:

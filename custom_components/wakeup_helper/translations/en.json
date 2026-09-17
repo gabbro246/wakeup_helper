@@ -85,6 +85,9 @@
       "nap_ends": {
         "name": "Ends"
       },
+      "nap_remaining": {
+        "name": "Remaining"
+      },
       "wakeup_status": {
         "name": "Status",
         "state": {
@@ -96,6 +99,9 @@
       },
       "next_alarm": {
         "name": "Next alarm"
+      },
+      "wakeup_remaining": {
+        "name": "Remaining"
       }
     }
   }

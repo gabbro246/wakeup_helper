@@ -1,0 +1,421 @@
+const CARD_TAG = "wakeup-helper-card";
+
+const escapeHtml = (value) =>
+  String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+
+class WakeupHelperCard extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+  }
+
+  static getConfigElement() {
+    return document.createElement("wakeup-helper-card-editor");
+  }
+
+  static getStubConfig() {
+    return {};
+  }
+
+  setConfig(config) {
+    this._config = { ...config };
+    this._render();
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    this._render();
+  }
+
+  connectedCallback() {
+    if (!this._timer) {
+      this._timer = setInterval(() => this._updateCountdown(), 1000);
+    }
+  }
+
+  disconnectedCallback() {
+    clearInterval(this._timer);
+    this._timer = undefined;
+  }
+
+  getCardSize() {
+    return this._entities().type === "wakeup" ? 4 : 3;
+  }
+
+  _base() {
+    return this._config?.entity?.split(".")[1] || "";
+  }
+
+  _entity(configKey, domain, suffix) {
+    if (this._config?.[configKey]) return this._config[configKey];
+    const key = suffix === "fade_in_duration" ? "fade_duration" : suffix;
+    const linked =
+      this._hass?.states[this._config?.entity]?.attributes
+        ?.wakeup_helper_entities?.[key];
+    if (linked) return linked;
+
+    const base = this._base();
+    return base ? domain + "." + base + (suffix ? "_" + suffix : "") : "";
+  }
+
+  _entities() {
+    const alarmTime = this._entity("alarm_time_entity", "time", "alarm_time");
+    const wakeup =
+      this._config?.routine === "wakeup" ||
+      (this._config?.routine !== "nap" && Boolean(this._hass?.states[alarmTime]));
+    return wakeup
+      ? {
+          type: "wakeup",
+          primary: this._config?.entity || "",
+          status: this._entity("status_entity", "sensor", "status"),
+          end: this._entity("end_entity", "sensor", "next_alarm"),
+          remaining: this._entity("remaining_entity", "sensor", "remaining"),
+          alarmTime,
+          duration: this._entity("duration_entity", "number", "fade_in_duration"),
+          brightness: this._entity(
+            "brightness_entity",
+            "number",
+            "end_brightness",
+          ),
+        }
+      : {
+          type: "nap",
+          primary: this._config?.entity || "",
+          status: this._entity("status_entity", "sensor", "status"),
+          end: this._entity("end_entity", "sensor", "ends"),
+          remaining: this._entity("remaining_entity", "sensor", "remaining"),
+          duration: this._entity("duration_entity", "number", "duration"),
+        };
+  }
+
+  _state(entityId) {
+    return entityId ? this._hass?.states[entityId] : undefined;
+  }
+
+  _formatState(state) {
+    if (!state) return "Unavailable";
+    return this._hass?.formatEntityState
+      ? this._hass.formatEntityState(state)
+      : state.state;
+  }
+
+  _countdownText() {
+    const entities = this._entities();
+    const primary = this._state(entities.primary);
+    const status = this._state(entities.status)?.state;
+    if (!primary || primary.state !== "on") return "Off";
+    if (status === "alarm") return "Alarm!";
+
+    const endState = this._state(entities.end)?.state;
+    const end = endState ? new Date(endState) : undefined;
+    if (end && !Number.isNaN(end.getTime())) {
+      return this._formatDuration(
+        Math.max(0, Math.ceil((end.getTime() - Date.now()) / 1000)),
+      );
+    }
+    const seconds = Number(this._state(entities.remaining)?.state);
+    return Number.isFinite(seconds) ? this._formatDuration(seconds) : "Scheduled";
+  }
+
+  _formatDuration(totalSeconds) {
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    if (days) {
+      return (
+        days +
+        "d " +
+        String(hours).padStart(2, "0") +
+        ":" +
+        String(minutes).padStart(2, "0")
+      );
+    }
+    if (hours) {
+      return (
+        hours +
+        ":" +
+        String(minutes).padStart(2, "0") +
+        ":" +
+        String(seconds).padStart(2, "0")
+      );
+    }
+    return minutes + ":" + String(seconds).padStart(2, "0") + " left";
+  }
+
+  _updateCountdown() {
+    const value = this.shadowRoot?.querySelector(".countdown-value");
+    if (value) value.textContent = this._countdownText();
+  }
+
+  _render() {
+    if (!this.shadowRoot || !this._config || !this._hass) return;
+    if (!this._timer && this.isConnected) this.connectedCallback();
+
+    if (!this._config.entity) {
+      this.shadowRoot.innerHTML =
+        "<ha-card><div class=\"empty\">Choose a Wakeup Helper switch in the card settings.</div></ha-card>";
+      return;
+    }
+
+    const entities = this._entities();
+    const primary = this._state(entities.primary);
+    if (!primary) {
+      this.shadowRoot.innerHTML =
+        "<ha-card><div class=\"empty\">Entity not found: " +
+        escapeHtml(this._config.entity) +
+        "</div></ha-card>";
+      return;
+    }
+
+    const active = primary.state === "on";
+    const title =
+      this._config.name ||
+      primary.attributes.friendly_name ||
+      (entities.type === "wakeup" ? "Wake-up light" : "Nap mode");
+    const status = this._formatState(this._state(entities.status));
+    const icon =
+      this._config.icon ||
+      (entities.type === "wakeup" ? "mdi:alarm" : "mdi:sleep");
+
+    this.shadowRoot.innerHTML =
+      "<style>" +
+      this._styles() +
+      "</style>" +
+      '<ha-card class="' +
+      (active ? "active" : "") +
+      '">' +
+      '<div class="header"><button class="icon-button" aria-label="Toggle routine">' +
+      '<ha-icon icon="' +
+      escapeHtml(icon) +
+      '"></ha-icon></button><div class="heading"><div class="title">' +
+      escapeHtml(title) +
+      '</div><div class="status">' +
+      escapeHtml(status) +
+      '</div></div><div class="countdown"><span class="countdown-label">' +
+      (entities.type === "wakeup" ? "Alarm in" : "Nap ends in") +
+      '</span><span class="countdown-value">' +
+      escapeHtml(this._countdownText()) +
+      '</span></div></div><div class="controls">' +
+      (entities.type === "wakeup"
+        ? this._wakeupControls(entities)
+        : this._numberControl("duration", "Duration", entities.duration)) +
+      "</div></ha-card>";
+
+    this.shadowRoot
+      .querySelector(".icon-button")
+      ?.addEventListener("click", () => this._toggle(entities.primary));
+    this._wireTime(entities.alarmTime);
+    this._wireNumber("duration", entities.duration);
+    this._wireNumber("brightness", entities.brightness);
+  }
+
+  _wakeupControls(entities) {
+    const timeState = this._state(entities.alarmTime);
+    const time = timeState?.state?.slice(0, 5) || "";
+    return (
+      '<label class="control"><span>Alarm time</span><input class="time-input" type="time" value="' +
+      escapeHtml(time) +
+      '"' +
+      (timeState ? "" : " disabled") +
+      "></label>" +
+      this._numberControl("duration", "Fade-in", entities.duration) +
+      this._brightnessControl(entities.brightness)
+    );
+  }
+
+  _numberControl(kind, label, entityId) {
+    const state = this._state(entityId);
+    if (!state) {
+      return '<div class="control missing">' + escapeHtml(label) + ": unavailable</div>";
+    }
+    const value = Number(state.state);
+    const unit = state.attributes.unit_of_measurement || "";
+    return (
+      '<div class="control"><span>' +
+      escapeHtml(label) +
+      '</span><div class="stepper"><button data-number="' +
+      kind +
+      '" data-direction="-1" aria-label="Decrease">−</button><strong>' +
+      escapeHtml(value) +
+      " " +
+      escapeHtml(unit) +
+      '</strong><button data-number="' +
+      kind +
+      '" data-direction="1" aria-label="Increase">+</button></div></div>'
+    );
+  }
+
+  _brightnessControl(entityId) {
+    const state = this._state(entityId);
+    if (!state) return "";
+    const value = Number(state.state);
+    return (
+      '<label class="control range-control"><span>End brightness <strong>' +
+      escapeHtml(value) +
+      '%</strong></span><input class="brightness-range" type="range" min="' +
+      escapeHtml(state.attributes.min ?? 1) +
+      '" max="' +
+      escapeHtml(state.attributes.max ?? 100) +
+      '" step="' +
+      escapeHtml(state.attributes.step ?? 5) +
+      '" value="' +
+      escapeHtml(value) +
+      '"></label>'
+    );
+  }
+
+  _wireTime(entityId) {
+    const input = this.shadowRoot.querySelector(".time-input");
+    if (!input || !entityId) return;
+    input.addEventListener("change", (event) => {
+      if (event.target.value) {
+        this._hass.callService("time", "set_value", {
+          entity_id: entityId,
+          time: event.target.value + ":00",
+        });
+      }
+    });
+  }
+
+  _wireNumber(kind, entityId) {
+    if (!entityId) return;
+    this.shadowRoot
+      .querySelectorAll('[data-number="' + kind + '"]')
+      .forEach((button) => {
+        button.addEventListener("click", () => {
+          const state = this._state(entityId);
+          if (!state) return;
+          const step = Number(state.attributes.step ?? 1);
+          const min = Number(state.attributes.min ?? 0);
+          const max = Number(state.attributes.max ?? 100);
+          const value = Math.min(
+            max,
+            Math.max(
+              min,
+              Number(state.state) + Number(button.dataset.direction) * step,
+            ),
+          );
+          this._setNumber(entityId, value);
+        });
+      });
+
+    if (kind === "brightness") {
+      this.shadowRoot
+        .querySelector(".brightness-range")
+        ?.addEventListener("change", (event) =>
+          this._setNumber(entityId, Number(event.target.value)),
+        );
+    }
+  }
+
+  _setNumber(entityId, value) {
+    this._hass.callService("number", "set_value", { entity_id: entityId, value });
+  }
+
+  _toggle(entityId) {
+    const state = this._state(entityId);
+    if (!state) return;
+    this._hass.callService(
+      "switch",
+      state.state === "on" ? "turn_off" : "turn_on",
+      { entity_id: entityId },
+    );
+  }
+
+  _styles() {
+    return [
+      ":host{display:block}",
+      "ha-card{padding:16px;overflow:hidden;transition:background .2s ease}",
+      "ha-card.active{background:color-mix(in srgb,var(--accent-color) 10%,var(--ha-card-background,var(--card-background-color)))}",
+      ".header{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px}",
+      ".icon-button{width:44px;height:44px;border:0;border-radius:50%;display:grid;place-items:center;background:var(--secondary-background-color);color:var(--secondary-text-color);cursor:pointer}",
+      ".active .icon-button{background:var(--accent-color);color:var(--text-primary-color)}",
+      ".heading{min-width:0}.title{font-size:16px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+      ".status{font-size:13px;color:var(--secondary-text-color);margin-top:2px}",
+      ".countdown{text-align:right;display:flex;flex-direction:column}.countdown-label{font-size:11px;text-transform:uppercase;color:var(--secondary-text-color)}",
+      ".countdown-value{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}",
+      ".controls{display:grid;gap:10px;margin-top:16px}.control{min-height:42px;border-radius:12px;background:var(--secondary-background-color);padding:8px 12px;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:12px}",
+      ".control>span{font-size:13px;color:var(--secondary-text-color)}",
+      ".time-input{border:0;background:transparent;color:var(--primary-text-color);font:600 17px inherit;color-scheme:light dark}",
+      ".stepper{display:flex;align-items:center;gap:10px}.stepper strong{min-width:58px;text-align:center;font-variant-numeric:tabular-nums}",
+      ".stepper button{width:32px;height:32px;border:0;border-radius:9px;background:var(--card-background-color);color:var(--primary-text-color);font-size:20px;cursor:pointer}",
+      ".range-control{display:grid;grid-template-columns:auto 1fr}.range-control span strong{color:var(--primary-text-color)}",
+      ".brightness-range{width:100%;accent-color:var(--accent-color)}.missing,.empty{padding:16px;color:var(--secondary-text-color)}",
+      "@media(max-width:380px){.header{grid-template-columns:auto 1fr}.countdown{grid-column:2;text-align:left}.range-control{grid-template-columns:1fr}}",
+    ].join("");
+  }
+}
+
+class WakeupHelperCardEditor extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    this._render();
+  }
+
+  setConfig(config) {
+    this._config = { ...config };
+    this._render();
+  }
+
+  _render() {
+    if (!this.shadowRoot || !this._hass || !this._config) return;
+    this.shadowRoot.innerHTML =
+      "<style>.editor{display:grid;gap:16px;padding:8px 0}label{display:grid;gap:6px}input{box-sizing:border-box;width:100%;padding:12px;border:1px solid var(--divider-color);border-radius:8px;background:transparent;color:var(--primary-text-color)}</style>" +
+      '<div class="editor"><ha-entity-picker></ha-entity-picker><label>Custom name (optional)<input class="name" value="' +
+      escapeHtml(this._config.name || "") +
+      '"></label></div>';
+
+    const picker = this.shadowRoot.querySelector("ha-entity-picker");
+    picker.hass = this._hass;
+    picker.value = this._config.entity || "";
+    picker.label = "Routine switch";
+    picker.includeDomains = ["switch"];
+    picker.addEventListener("value-changed", (event) =>
+      this._change({ entity: event.detail.value }),
+    );
+    this.shadowRoot.querySelector(".name").addEventListener("change", (event) =>
+      this._change({ name: event.target.value || undefined }),
+    );
+  }
+
+  _change(changes) {
+    this._config = { ...this._config, ...changes };
+    Object.keys(this._config).forEach((key) => {
+      if (this._config[key] === undefined) delete this._config[key];
+    });
+    this.dispatchEvent(
+      new CustomEvent("config-changed", {
+        detail: { config: this._config },
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
+}
+
+if (!customElements.get(CARD_TAG)) {
+  customElements.define(CARD_TAG, WakeupHelperCard);
+}
+if (!customElements.get("wakeup-helper-card-editor")) {
+  customElements.define("wakeup-helper-card-editor", WakeupHelperCardEditor);
+}
+
+window.customCards = window.customCards || [];
+if (!window.customCards.some((card) => card.type === CARD_TAG)) {
+  window.customCards.push({
+    type: CARD_TAG,
+    name: "Wakeup Helper",
+    description: "Control a Wakeup Helper routine and see its live countdown.",
+    preview: true,
+  });
+}

@@ -38,6 +38,11 @@ class NapSwitch(WakeupHelperEntity, SwitchEntity):
         self.controller = controller
 
     @property
+    def extra_state_attributes(self) -> dict[str, dict[str, str]]:
+        """Expose this routine's entities to its dashboard card."""
+        return {"wakeup_helper_entities": dict(self.controller.entity_ids)}
+
+    @property
     def is_on(self) -> bool:
         return self.controller.active
 
@@ -59,6 +64,11 @@ class WakeupSwitch(WakeupHelperEntity, SwitchEntity):
     ) -> None:
         super().__init__(entry, controller, "switch")
         self.controller = controller
+
+    @property
+    def extra_state_attributes(self) -> dict[str, dict[str, str]]:
+        """Expose this routine's entities to its dashboard card."""
+        return {"wakeup_helper_entities": dict(self.controller.entity_ids)}
 
     @property
     def is_on(self) -> bool:

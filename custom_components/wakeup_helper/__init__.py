@@ -2,20 +2,47 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
+from homeassistant.components.frontend import add_extra_js_url
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.storage import Store
 
-from .const import DOMAIN, PLATFORMS, ROUTINE_NAP, STORAGE_VERSION
+from .const import (
+    CARD_URL,
+    DOMAIN,
+    PLATFORMS,
+    ROUTINE_NAP,
+    STATIC_URL,
+    STORAGE_VERSION,
+)
 from .routine import NapController, RoutineController, WakeupController
 
 type WakeupHelperConfigEntry = ConfigEntry[RoutineController]
+
+DATA_FRONTEND_REGISTERED = f"{DOMAIN}_frontend_registered"
+
+
+async def _async_register_frontend(hass: HomeAssistant) -> None:
+    """Serve and load the dashboard card once."""
+    if hass.data.get(DATA_FRONTEND_REGISTERED):
+        return
+
+    frontend_dir = Path(__file__).parent / "frontend"
+    await hass.http.async_register_static_paths(
+        [StaticPathConfig(STATIC_URL, str(frontend_dir), True)]
+    )
+    add_extra_js_url(hass, CARD_URL)
+    hass.data[DATA_FRONTEND_REGISTERED] = True
 
 
 async def async_setup_entry(
     hass: HomeAssistant, entry: WakeupHelperConfigEntry
 ) -> bool:
     """Set up Wakeup Helper from a config entry."""
+    await _async_register_frontend(hass)
     if entry.data["routine_type"] == ROUTINE_NAP:
         controller: RoutineController = NapController(hass, entry)
     else:

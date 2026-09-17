@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0
+
+- Added a built-in dashboard card with inline controls and a live countdown.
+- Added remaining-time sensors for naps and wake-up alarms.
+- Removed the need for a separate dashboard card from HACS.
+- Wakeup Helper is now shown as a device integration.
+
 ## 0.1.0
 
 - Added separate nap and wake-up light devices for each room.

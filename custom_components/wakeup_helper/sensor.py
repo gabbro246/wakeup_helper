@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import ClassVar
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.const import UnitOfTime
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
@@ -24,13 +25,18 @@ async def async_setup_entry(
     controller = entry.runtime_data
     if entry.data["routine_type"] == ROUTINE_NAP:
         async_add_entities(
-            [NapStatusSensor(entry, controller), NapEndsSensor(entry, controller)]
+            [
+                NapStatusSensor(entry, controller),
+                NapEndsSensor(entry, controller),
+                NapRemainingSensor(entry, controller),
+            ]
         )
     else:
         async_add_entities(
             [
                 WakeupStatusSensor(entry, controller),
                 NextAlarmSensor(entry, controller),
+                WakeupRemainingSensor(entry, controller),
             ]
         )
 
@@ -72,6 +78,26 @@ class NapEndsSensor(WakeupHelperEntity, SensorEntity):
         return self.controller.end_at
 
 
+class NapRemainingSensor(WakeupHelperEntity, SensorEntity):
+    """Report the remaining nap duration."""
+
+    _attr_translation_key = "nap_remaining"
+    _attr_icon = "mdi:timer-sand"
+    _attr_device_class = SensorDeviceClass.DURATION
+    _attr_native_unit_of_measurement = UnitOfTime.SECONDS
+    _attr_suggested_display_precision = 0
+
+    def __init__(
+        self, entry: WakeupHelperConfigEntry, controller: NapController
+    ) -> None:
+        super().__init__(entry, controller, "remaining")
+        self.controller = controller
+
+    @property
+    def native_value(self) -> int | None:
+        return self.controller.remaining_seconds
+
+
 class WakeupStatusSensor(WakeupHelperEntity, SensorEntity):
     """Report the current wake-up light stage."""
 
@@ -107,3 +133,23 @@ class NextAlarmSensor(WakeupHelperEntity, SensorEntity):
     @property
     def native_value(self) -> datetime | None:
         return self.controller.next_alarm
+
+
+class WakeupRemainingSensor(WakeupHelperEntity, SensorEntity):
+    """Report the remaining duration until the next alarm."""
+
+    _attr_translation_key = "wakeup_remaining"
+    _attr_icon = "mdi:timer-outline"
+    _attr_device_class = SensorDeviceClass.DURATION
+    _attr_native_unit_of_measurement = UnitOfTime.SECONDS
+    _attr_suggested_display_precision = 0
+
+    def __init__(
+        self, entry: WakeupHelperConfigEntry, controller: WakeupController
+    ) -> None:
+        super().__init__(entry, controller, "remaining")
+        self.controller = controller
+
+    @property
+    def native_value(self) -> int | None:
+        return self.controller.remaining_seconds
