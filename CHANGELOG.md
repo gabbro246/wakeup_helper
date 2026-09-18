@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1
+
+- Added a Wakeup Helper icon for Home Assistant and the repository.
+
 ## 0.3.0
 
 - Redesigned both dashboard cards to closely match the original vertical tiles.

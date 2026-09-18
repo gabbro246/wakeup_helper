@@ -1,5 +1,9 @@
 # Wakeup Helper
 
+<p align="center">
+  <img src="custom_components/wakeup_helper/brand/icon.png" alt="Wakeup Helper icon" width="160">
+</p>
+
 Wakeup Helper is a Home Assistant custom integration that combines a nap mode
 and a wake-up light. Every routine is its own Home Assistant device, so you can
 create separate routines for different people or rooms without manually making
