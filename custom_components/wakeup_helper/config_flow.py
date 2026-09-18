@@ -70,8 +70,8 @@ def _nap_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
                 default=values.get(CONF_DURATION, DEFAULT_NAP_DURATION),
             ): NumberSelector(
                 NumberSelectorConfig(
-                    min=5,
-                    max=180,
+                    min=15,
+                    max=90,
                     step=5,
                     unit_of_measurement="min",
                     mode=NumberSelectorMode.BOX,

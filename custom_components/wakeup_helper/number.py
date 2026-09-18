@@ -38,8 +38,8 @@ class NapDurationNumber(WakeupHelperEntity, NumberEntity):
     _attr_icon = "mdi:timer-sand"
     _attr_device_class = NumberDeviceClass.DURATION
     _attr_native_unit_of_measurement = UnitOfTime.MINUTES
-    _attr_native_min_value = 5
-    _attr_native_max_value = 180
+    _attr_native_min_value = 15
+    _attr_native_max_value = 90
     _attr_native_step = 5
     _attr_mode = NumberMode.BOX
     _attr_entity_category = EntityCategory.CONFIG

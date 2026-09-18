@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0
+
+- Redesigned both dashboard cards to closely match the original vertical tiles.
+- Added nap-duration and alarm-time controls while keeping advanced settings on the device page.
+- Restored the original nap, countdown, fade-in, and alarm messages.
+- Tapping outside a control now opens that routine's device settings.
+
 ## 0.2.0
 
 - Added a built-in dashboard card with inline controls and a live countdown.

@@ -11,7 +11,6 @@ wake_up_light:
 # If you renamed individual entities, point the card at them explicitly:
 # alarm_time_entity: time.my_alarm
 # duration_entity: number.my_fade_duration
-# brightness_entity: number.my_brightness
 # status_entity: sensor.my_status
 # end_entity: sensor.my_next_alarm
 # remaining_entity: sensor.my_remaining

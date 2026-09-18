@@ -43,7 +43,18 @@ class WakeupHelperCard extends HTMLElement {
   }
 
   getCardSize() {
-    return this._entities().type === "wakeup" ? 4 : 3;
+    if (this._entities().type !== "wakeup") return 2;
+    return 3;
+  }
+
+  getGridOptions() {
+    const wakeup = this._entities().type === "wakeup";
+    return {
+      columns: 4,
+      rows: wakeup ? 3 : 2,
+      min_columns: 3,
+      min_rows: 2,
+    };
   }
 
   _base() {
@@ -76,11 +87,6 @@ class WakeupHelperCard extends HTMLElement {
           remaining: this._entity("remaining_entity", "sensor", "remaining"),
           alarmTime,
           duration: this._entity("duration_entity", "number", "fade_in_duration"),
-          brightness: this._entity(
-            "brightness_entity",
-            "number",
-            "end_brightness",
-          ),
         }
       : {
           type: "nap",
@@ -96,29 +102,59 @@ class WakeupHelperCard extends HTMLElement {
     return entityId ? this._hass?.states[entityId] : undefined;
   }
 
-  _formatState(state) {
-    if (!state) return "Unavailable";
-    return this._hass?.formatEntityState
-      ? this._hass.formatEntityState(state)
-      : state.state;
-  }
-
-  _countdownText() {
+  _secondaryText() {
     const entities = this._entities();
     const primary = this._state(entities.primary);
     const status = this._state(entities.status)?.state;
-    if (!primary || primary.state !== "on") return "Off";
-    if (status === "alarm") return "Alarm!";
+    if (!primary) return "Unavailable";
+    if (primary.state !== "on") return "off";
+    if (status === "alarm") return "Alarm! 🚨";
 
     const endState = this._state(entities.end)?.state;
     const end = endState ? new Date(endState) : undefined;
     if (end && !Number.isNaN(end.getTime())) {
-      return this._formatDuration(
-        Math.max(0, Math.ceil((end.getTime() - Date.now()) / 1000)),
+      const seconds = Math.max(
+        0,
+        Math.ceil((end.getTime() - Date.now()) / 1000),
       );
+      if (entities.type === "nap") {
+        return "nap ends " + this._formatTime(end);
+      }
+      return this._wakeupText(seconds, entities);
     }
     const seconds = Number(this._state(entities.remaining)?.state);
-    return Number.isFinite(seconds) ? this._formatDuration(seconds) : "Scheduled";
+    if (!Number.isFinite(seconds)) return "scheduled";
+    return entities.type === "nap"
+      ? "nap ends in " + this._formatDuration(seconds)
+      : this._wakeupText(seconds, entities);
+  }
+
+  _wakeupText(seconds, entities) {
+    const minutes = Math.max(0, Math.ceil(seconds / 60));
+    const fadeDuration = Number(this._state(entities.duration)?.state ?? 0);
+    if (minutes >= 720) {
+      const alarm = this._state(entities.alarmTime)?.state?.slice(0, 5);
+      return alarm ? "alarm at " + alarm : "scheduled";
+    }
+    if (minutes > fadeDuration) {
+      return (
+        "alarm in " +
+        Math.floor(minutes / 60) +
+        ":" +
+        String(minutes % 60).padStart(2, "0")
+      );
+    }
+    return String(minutes).padStart(2, " ") + " min. left";
+  }
+
+  _formatTime(date) {
+    return (
+      String(date.getHours()).padStart(2, "0") +
+      ":" +
+      String(date.getMinutes()).padStart(2, "0") +
+      ":" +
+      String(date.getSeconds()).padStart(2, "0")
+    );
   }
 
   _formatDuration(totalSeconds) {
@@ -144,12 +180,12 @@ class WakeupHelperCard extends HTMLElement {
         String(seconds).padStart(2, "0")
       );
     }
-    return minutes + ":" + String(seconds).padStart(2, "0") + " left";
+    return minutes + ":" + String(seconds).padStart(2, "0");
   }
 
   _updateCountdown() {
-    const value = this.shadowRoot?.querySelector(".countdown-value");
-    if (value) value.textContent = this._countdownText();
+    const value = this.shadowRoot?.querySelector(".state");
+    if (value) value.textContent = this._secondaryText();
   }
 
   _render() {
@@ -177,68 +213,76 @@ class WakeupHelperCard extends HTMLElement {
       this._config.name ||
       primary.attributes.friendly_name ||
       (entities.type === "wakeup" ? "Wake-up light" : "Nap mode");
-    const status = this._formatState(this._state(entities.status));
     const icon =
       this._config.icon ||
       (entities.type === "wakeup" ? "mdi:alarm" : "mdi:sleep");
-
+    const feature =
+      entities.type === "wakeup"
+        ? this._timeFeature(entities.alarmTime)
+        : this._stepperFeature("duration", entities.duration);
     this.shadowRoot.innerHTML =
       "<style>" +
       this._styles() +
       "</style>" +
       '<ha-card class="' +
-      (active ? "active" : "") +
+      (active ? "active " : "") +
+      entities.type +
       '">' +
-      '<div class="header"><button class="icon-button" aria-label="Toggle routine">' +
+      '<div class="tile-main" role="button" tabindex="0" aria-label="Open device"><button class="icon-button" aria-label="Toggle routine">' +
       '<ha-icon icon="' +
       escapeHtml(icon) +
-      '"></ha-icon></button><div class="heading"><div class="title">' +
+      '"></ha-icon></button><div class="title">' +
       escapeHtml(title) +
-      '</div><div class="status">' +
-      escapeHtml(status) +
-      '</div></div><div class="countdown"><span class="countdown-label">' +
-      (entities.type === "wakeup" ? "Alarm in" : "Nap ends in") +
-      '</span><span class="countdown-value">' +
-      escapeHtml(this._countdownText()) +
-      '</span></div></div><div class="controls">' +
-      (entities.type === "wakeup"
-        ? this._wakeupControls(entities)
-        : this._numberControl("duration", "Duration", entities.duration)) +
+      '</div><div class="state">' +
+      escapeHtml(this._secondaryText()) +
+      '</div></div><div class="features">' +
+      feature +
       "</div></ha-card>";
 
     this.shadowRoot
       .querySelector(".icon-button")
-      ?.addEventListener("click", () => this._toggle(entities.primary));
-    this._wireTime(entities.alarmTime);
+      ?.addEventListener("click", (event) => {
+        event.stopPropagation();
+        this._toggle(entities.primary);
+      });
+    this.shadowRoot
+      .querySelector("ha-card")
+      ?.addEventListener("click", () => this._openDevice(entities.primary));
+    const main = this.shadowRoot.querySelector(".tile-main");
+    main?.addEventListener("keydown", (event) => {
+      if (
+        event.target === main &&
+        (event.key === "Enter" || event.key === " ")
+      ) {
+        event.preventDefault();
+        this._openDevice(entities.primary);
+      }
+    });
+    this._wireTimeStepper(entities.alarmTime);
     this._wireNumber("duration", entities.duration);
-    this._wireNumber("brightness", entities.brightness);
   }
 
-  _wakeupControls(entities) {
-    const timeState = this._state(entities.alarmTime);
-    const time = timeState?.state?.slice(0, 5) || "";
+  _timeFeature(entityId) {
+    const state = this._state(entityId);
+    const value = state?.state?.slice(0, 5) || "Unavailable";
     return (
-      '<label class="control"><span>Alarm time</span><input class="time-input" type="time" value="' +
-      escapeHtml(time) +
-      '"' +
-      (timeState ? "" : " disabled") +
-      "></label>" +
-      this._numberControl("duration", "Fade-in", entities.duration) +
-      this._brightnessControl(entities.brightness)
+      '<div class="feature time-feature"><button data-time-direction="-1" aria-label="Earlier alarm"' +
+      (state ? "" : " disabled") +
+      '>−</button><strong>' +
+      escapeHtml(value) +
+      '</strong><button data-time-direction="1" aria-label="Later alarm"' +
+      (state ? "" : " disabled") +
+      ">+</button></div>"
     );
   }
 
-  _numberControl(kind, label, entityId) {
+  _stepperFeature(kind, entityId) {
     const state = this._state(entityId);
-    if (!state) {
-      return '<div class="control missing">' + escapeHtml(label) + ": unavailable</div>";
-    }
+    if (!state) return '<div class="feature missing">Unavailable</div>';
     const value = Number(state.state);
     const unit = state.attributes.unit_of_measurement || "";
     return (
-      '<div class="control"><span>' +
-      escapeHtml(label) +
-      '</span><div class="stepper"><button data-number="' +
+      '<div class="feature"><button data-number="' +
       kind +
       '" data-direction="-1" aria-label="Decrease">−</button><strong>' +
       escapeHtml(value) +
@@ -246,39 +290,31 @@ class WakeupHelperCard extends HTMLElement {
       escapeHtml(unit) +
       '</strong><button data-number="' +
       kind +
-      '" data-direction="1" aria-label="Increase">+</button></div></div>'
+      '" data-direction="1" aria-label="Increase">+</button></div>'
     );
   }
 
-  _brightnessControl(entityId) {
-    const state = this._state(entityId);
-    if (!state) return "";
-    const value = Number(state.state);
-    return (
-      '<label class="control range-control"><span>End brightness <strong>' +
-      escapeHtml(value) +
-      '%</strong></span><input class="brightness-range" type="range" min="' +
-      escapeHtml(state.attributes.min ?? 1) +
-      '" max="' +
-      escapeHtml(state.attributes.max ?? 100) +
-      '" step="' +
-      escapeHtml(state.attributes.step ?? 5) +
-      '" value="' +
-      escapeHtml(value) +
-      '"></label>'
-    );
-  }
-
-  _wireTime(entityId) {
-    const input = this.shadowRoot.querySelector(".time-input");
-    if (!input || !entityId) return;
-    input.addEventListener("change", (event) => {
-      if (event.target.value) {
+  _wireTimeStepper(entityId) {
+    if (!entityId) return;
+    this.shadowRoot.querySelectorAll("[data-time-direction]").forEach((button) => {
+      button.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const state = this._state(entityId);
+        if (!state) return;
+        const parts = state.state.split(":").map(Number);
+        const currentMinutes = parts[0] * 60 + parts[1];
+        const direction = Number(button.dataset.timeDirection);
+        const minutes = (currentMinutes + direction * 15 + 1440) % 1440;
+        const value =
+          String(Math.floor(minutes / 60)).padStart(2, "0") +
+          ":" +
+          String(minutes % 60).padStart(2, "0") +
+          ":00";
         this._hass.callService("time", "set_value", {
           entity_id: entityId,
-          time: event.target.value + ":00",
+          time: value,
         });
-      }
+      });
     });
   }
 
@@ -287,7 +323,8 @@ class WakeupHelperCard extends HTMLElement {
     this.shadowRoot
       .querySelectorAll('[data-number="' + kind + '"]')
       .forEach((button) => {
-        button.addEventListener("click", () => {
+        button.addEventListener("click", (event) => {
+          event.stopPropagation();
           const state = this._state(entityId);
           if (!state) return;
           const step = Number(state.attributes.step ?? 1);
@@ -304,13 +341,6 @@ class WakeupHelperCard extends HTMLElement {
         });
       });
 
-    if (kind === "brightness") {
-      this.shadowRoot
-        .querySelector(".brightness-range")
-        ?.addEventListener("change", (event) =>
-          this._setNumber(entityId, Number(event.target.value)),
-        );
-    }
   }
 
   _setNumber(entityId, value) {
@@ -327,26 +357,51 @@ class WakeupHelperCard extends HTMLElement {
     );
   }
 
+  _openDevice(entityId) {
+    const state = this._state(entityId);
+    const deviceId = state?.attributes?.wakeup_helper_device_id;
+    if (!deviceId) {
+      this._moreInfo(entityId);
+      return;
+    }
+    window.history.pushState(
+      null,
+      "",
+      "/config/devices/device/" + encodeURIComponent(deviceId),
+    );
+    window.dispatchEvent(new CustomEvent("location-changed"));
+  }
+
+  _moreInfo(entityId) {
+    if (!entityId) return;
+    this.dispatchEvent(
+      new CustomEvent("hass-more-info", {
+        detail: { entityId },
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
+
   _styles() {
     return [
-      ":host{display:block}",
-      "ha-card{padding:16px;overflow:hidden;transition:background .2s ease}",
-      "ha-card.active{background:color-mix(in srgb,var(--accent-color) 10%,var(--ha-card-background,var(--card-background-color)))}",
-      ".header{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px}",
-      ".icon-button{width:44px;height:44px;border:0;border-radius:50%;display:grid;place-items:center;background:var(--secondary-background-color);color:var(--secondary-text-color);cursor:pointer}",
-      ".active .icon-button{background:var(--accent-color);color:var(--text-primary-color)}",
-      ".heading{min-width:0}.title{font-size:16px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
-      ".status{font-size:13px;color:var(--secondary-text-color);margin-top:2px}",
-      ".countdown{text-align:right;display:flex;flex-direction:column}.countdown-label{font-size:11px;text-transform:uppercase;color:var(--secondary-text-color)}",
-      ".countdown-value{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}",
-      ".controls{display:grid;gap:10px;margin-top:16px}.control{min-height:42px;border-radius:12px;background:var(--secondary-background-color);padding:8px 12px;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:12px}",
-      ".control>span{font-size:13px;color:var(--secondary-text-color)}",
-      ".time-input{border:0;background:transparent;color:var(--primary-text-color);font:600 17px inherit;color-scheme:light dark}",
-      ".stepper{display:flex;align-items:center;gap:10px}.stepper strong{min-width:58px;text-align:center;font-variant-numeric:tabular-nums}",
-      ".stepper button{width:32px;height:32px;border:0;border-radius:9px;background:var(--card-background-color);color:var(--primary-text-color);font-size:20px;cursor:pointer}",
-      ".range-control{display:grid;grid-template-columns:auto 1fr}.range-control span strong{color:var(--primary-text-color)}",
-      ".brightness-range{width:100%;accent-color:var(--accent-color)}.missing,.empty{padding:16px;color:var(--secondary-text-color)}",
-      "@media(max-width:380px){.header{grid-template-columns:auto 1fr}.countdown{grid-column:2;text-align:left}.range-control{grid-template-columns:1fr}}",
+      ":host{display:block;height:100%}",
+      "ha-card{height:100%;min-height:120px;padding:10px;box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;gap:6px;cursor:pointer}",
+      ".tile-main{min-height:56px;min-width:0;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;outline:none}",
+      ".tile-main:focus-visible{border-radius:12px;box-shadow:inset 0 0 0 2px var(--primary-color)}",
+      ".icon-button{width:42px;height:42px;border:0;border-radius:50%;display:grid;place-items:center;background:var(--secondary-background-color);color:var(--secondary-text-color);cursor:pointer;transition:background .2s ease,color .2s ease}",
+      ".active.nap .icon-button{background:var(--primary-color);color:var(--text-primary-color)}",
+      ".active.wakeup .icon-button{background:var(--accent-color,var(--primary-color));color:var(--text-primary-color)}",
+      ".title{max-width:100%;margin-top:7px;font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+      ".state{max-width:100%;margin-top:2px;font-size:12px;color:var(--secondary-text-color);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}",
+      ".features{display:grid;gap:6px}.feature{height:36px;border-radius:18px;background:var(--secondary-background-color);display:grid;grid-template-columns:36px minmax(0,1fr) 36px;align-items:center;text-align:center;overflow:hidden}",
+      ".active.nap .feature{background:color-mix(in srgb,var(--primary-color) 18%,var(--secondary-background-color))}",
+      ".active.wakeup .feature{background:color-mix(in srgb,var(--accent-color,var(--primary-color)) 18%,var(--secondary-background-color))}",
+      ".feature button{height:36px;border:0;background:transparent;color:var(--primary-text-color);font-size:20px;cursor:pointer}",
+      ".feature button:hover{background:color-mix(in srgb,var(--primary-text-color) 8%,transparent)}",
+      ".feature strong{font-size:14px;font-weight:500;font-variant-numeric:tabular-nums}",
+      ".missing,.empty{padding:16px;color:var(--secondary-text-color)}",
+      "@media(max-width:220px){ha-card{padding:8px}}",
     ].join("");
   }
 }
@@ -370,8 +425,8 @@ class WakeupHelperCardEditor extends HTMLElement {
   _render() {
     if (!this.shadowRoot || !this._hass || !this._config) return;
     this.shadowRoot.innerHTML =
-      "<style>.editor{display:grid;gap:16px;padding:8px 0}label{display:grid;gap:6px}input{box-sizing:border-box;width:100%;padding:12px;border:1px solid var(--divider-color);border-radius:8px;background:transparent;color:var(--primary-text-color)}</style>" +
-      '<div class="editor"><ha-entity-picker></ha-entity-picker><label>Custom name (optional)<input class="name" value="' +
+      "<style>.editor{display:grid;gap:16px;padding:8px 0}.text{display:grid;gap:6px}.text input{box-sizing:border-box;width:100%;padding:12px;border:1px solid var(--divider-color);border-radius:8px;background:transparent;color:var(--primary-text-color)}</style>" +
+      '<div class="editor"><ha-entity-picker></ha-entity-picker><label class="text">Custom name (optional)<input class="name" value="' +
       escapeHtml(this._config.name || "") +
       '"></label></div>';
 
@@ -415,7 +470,19 @@ if (!window.customCards.some((card) => card.type === CARD_TAG)) {
   window.customCards.push({
     type: CARD_TAG,
     name: "Wakeup Helper",
-    description: "Control a Wakeup Helper routine and see its live countdown.",
+    description: "A tile-style card for Wakeup Helper routines.",
     preview: true,
+    getEntitySuggestion: (hass, entityId) => {
+      const entity = hass.states[entityId];
+      if (
+        entityId.split(".")[0] !== "switch" ||
+        !entity?.attributes?.wakeup_helper_entities
+      ) {
+        return null;
+      }
+      return {
+        config: { type: "custom:wakeup-helper-card", entity: entityId },
+      };
+    },
   });
 }

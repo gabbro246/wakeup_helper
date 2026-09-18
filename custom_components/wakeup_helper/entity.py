@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from homeassistant.core import callback
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity import Entity
 
@@ -34,6 +35,16 @@ class WakeupHelperEntity(Entity):
             manufacturer="Wakeup Helper",
             model="Nap mode" if routine_type == ROUTINE_NAP else "Wake-up light",
         )
+
+    @property
+    def device_registry_id(self) -> str | None:
+        """Return the Home Assistant device ID used by the dashboard card."""
+        if self.hass is None:
+            return None
+        device = dr.async_get(self.hass).async_get_device(
+            identifiers={(DOMAIN, self._entry.entry_id)}
+        )
+        return device.id if device else None
 
     async def async_added_to_hass(self) -> None:
         """Subscribe to runtime state changes."""

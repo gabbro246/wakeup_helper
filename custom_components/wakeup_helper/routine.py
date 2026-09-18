@@ -205,8 +205,8 @@ class NapController(RoutineController):
         self.duration = _bounded_int(
             self._stored.get(CONF_DURATION, self.config.get(CONF_DURATION)),
             DEFAULT_NAP_DURATION,
-            5,
-            180,
+            15,
+            90,
         )
         self.active = bool(self._stored.get("active", False))
         self.end_at = None

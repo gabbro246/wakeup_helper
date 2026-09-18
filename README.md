@@ -89,9 +89,21 @@ type: custom:wakeup-helper-card
 entity: switch.bedroom_nap
 ~~~
 
-The card provides an on/off button, a live countdown, and inline controls for
-time, duration, and brightness. No separate frontend resource or custom card
-from HACS is needed.
+The card closely follows the original vertical tile design. Tap the round icon
+to enable or disable the routine. The bottom control changes the nap duration or
+wake-up time. Tapping anywhere else on the card opens that routine's device
+page, including its configuration entities. In a Sections dashboard, both cards
+are resizable. Their default sizes match the originals at 4 × 2 grid cells for
+naps and 4 × 3 for wake-up lights.
+
+The nap card shows `off` or the exact time the nap ends. The wake-up card
+matches the original status changes: it shows the alarm time when the alarm is
+far away, a countdown as it gets closer, minutes left during the fade-in, and an
+alarm message while the alarm is firing.
+
+Fade-in duration and end brightness remain configuration entities on the
+Wakeup Helper device and are intentionally not shown on the dashboard card. No
+separate frontend resource or custom card from HACS is needed.
 
 The generated entity IDs depend on the name chosen during setup. Replace the
 example IDs below with the entities shown on your routine's device page.

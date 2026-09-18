@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
@@ -38,9 +40,14 @@ class NapSwitch(WakeupHelperEntity, SwitchEntity):
         self.controller = controller
 
     @property
-    def extra_state_attributes(self) -> dict[str, dict[str, str]]:
-        """Expose this routine's entities to its dashboard card."""
-        return {"wakeup_helper_entities": dict(self.controller.entity_ids)}
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Expose this routine's entities and device to its dashboard card."""
+        attributes: dict[str, Any] = {
+            "wakeup_helper_entities": dict(self.controller.entity_ids)
+        }
+        if device_id := self.device_registry_id:
+            attributes["wakeup_helper_device_id"] = device_id
+        return attributes
 
     @property
     def is_on(self) -> bool:
@@ -66,9 +73,14 @@ class WakeupSwitch(WakeupHelperEntity, SwitchEntity):
         self.controller = controller
 
     @property
-    def extra_state_attributes(self) -> dict[str, dict[str, str]]:
-        """Expose this routine's entities to its dashboard card."""
-        return {"wakeup_helper_entities": dict(self.controller.entity_ids)}
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Expose this routine's entities and device to its dashboard card."""
+        attributes: dict[str, Any] = {
+            "wakeup_helper_entities": dict(self.controller.entity_ids)
+        }
+        if device_id := self.device_registry_id:
+            attributes["wakeup_helper_device_id"] = device_id
+        return attributes
 
     @property
     def is_on(self) -> bool:
