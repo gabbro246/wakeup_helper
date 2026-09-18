@@ -414,12 +414,20 @@ class WakeupHelperCardEditor extends HTMLElement {
 
   set hass(hass) {
     this._hass = hass;
-    this._render();
+    if (this._picker) {
+      this._picker.hass = hass;
+    } else {
+      this._render();
+    }
   }
 
   setConfig(config) {
     this._config = { ...config };
-    this._render();
+    if (this._picker) {
+      this._syncValues();
+    } else {
+      this._render();
+    }
   }
 
   _render() {
@@ -430,17 +438,32 @@ class WakeupHelperCardEditor extends HTMLElement {
       escapeHtml(this._config.name || "") +
       '"></label></div>';
 
-    const picker = this.shadowRoot.querySelector("ha-entity-picker");
-    picker.hass = this._hass;
-    picker.value = this._config.entity || "";
-    picker.label = "Routine switch";
-    picker.includeDomains = ["switch"];
-    picker.addEventListener("value-changed", (event) =>
+    this._picker = this.shadowRoot.querySelector("ha-entity-picker");
+    this._nameInput = this.shadowRoot.querySelector(".name");
+    this._picker.label = "Routine switch";
+    this._picker.includeDomains = ["switch"];
+    this._picker.addEventListener("value-changed", (event) =>
       this._change({ entity: event.detail.value }),
     );
-    this.shadowRoot.querySelector(".name").addEventListener("change", (event) =>
+    this._nameInput.addEventListener("input", (event) =>
       this._change({ name: event.target.value || undefined }),
     );
+    this._syncValues();
+  }
+
+  _syncValues() {
+    if (!this._picker || !this._nameInput) return;
+    this._picker.hass = this._hass;
+    const entity = this._config.entity || "";
+    if (this._picker.value !== entity) this._picker.value = entity;
+
+    const name = this._config.name || "";
+    if (
+      this.shadowRoot.activeElement !== this._nameInput &&
+      this._nameInput.value !== name
+    ) {
+      this._nameInput.value = name;
+    }
   }
 
   _change(changes) {

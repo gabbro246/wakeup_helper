@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.2
+
+- Fixed the card editor dropdown and custom name field losing focus.
+
 ## 0.3.1
 
 - Added a Wakeup Helper icon for Home Assistant and the repository.
