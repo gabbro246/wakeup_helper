@@ -1,11 +1,15 @@
 # Changelog
 
+## 0.3.4
+
+- Added a compact side-by-side layout when a card is resized to 12 × 1.
+- Removed extra hover highlights and fixed inconsistent loading after updates.
+
 ## 0.3.3
 
 - Made dashboard cards adapt more consistently to themes and interaction states.
 - Added a clear visual preview before a routine is selected.
 - Limited the card editor to Wakeup Helper routine switches.
-- Changed the initial dashboard card size to 6 × 3 grid cells.
 
 ## 0.3.2
 

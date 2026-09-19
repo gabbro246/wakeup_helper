@@ -97,7 +97,9 @@ The card closely follows the original vertical tile design. Tap the round icon
 to enable or disable the routine. The bottom control changes the nap duration or
 wake-up time. Tapping anywhere else on the card opens that routine's device
 page, including its configuration entities. In a Sections dashboard, both cards
-are resizable. Both cards start at 6 × 3 grid cells.
+are resizable. Both cards start at 6 × 3 grid cells. When resized to 12 × 1,
+the icon moves to the left, the name and status stay in the middle, and the
+duration or alarm-time controls move to the right.
 
 The nap card shows `off` or the exact time the nap ends. The wake-up card
 matches the original status changes: it shows the alarm time when the alarm is
