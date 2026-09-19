@@ -1,7 +1,11 @@
 # Changelog
 
+## 0.3.7
+- Kept existing dashboard cards in their previous vertical layout.
+- Fixed old card files continuing to load after updates.
+
 ## 0.3.6
-- rewrote readme
+- Rewrote the README.
 
 ## 0.3.5
 - Added selectable horizontal and vertical card layouts with matching resize limits.

@@ -32,7 +32,7 @@ async def _async_register_frontend(hass: HomeAssistant) -> None:
 
     frontend_dir = Path(__file__).parent / "frontend"
     await hass.http.async_register_static_paths(
-        [StaticPathConfig(STATIC_URL, str(frontend_dir), True)]
+        [StaticPathConfig(STATIC_URL, str(frontend_dir), False)]
     )
     add_extra_js_url(hass, CARD_URL)
     hass.data[DATA_FRONTEND_REGISTERED] = True

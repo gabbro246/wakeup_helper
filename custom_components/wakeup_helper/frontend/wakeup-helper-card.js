@@ -7,6 +7,11 @@ const escapeHtml = (value) =>
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
 
+const isVerticalLayout = (config) =>
+  Boolean(config) &&
+  (!Object.prototype.hasOwnProperty.call(config, "vertical") ||
+    config.vertical === true);
+
 class WakeupHelperCard extends HTMLElement {
   constructor() {
     super();
@@ -18,7 +23,7 @@ class WakeupHelperCard extends HTMLElement {
   }
 
   static getStubConfig() {
-    return {};
+    return { vertical: false };
   }
 
   setConfig(config) {
@@ -43,7 +48,7 @@ class WakeupHelperCard extends HTMLElement {
   }
 
   _layout() {
-    return this._config?.vertical === true ? "vertical" : "horizontal";
+    return isVerticalLayout(this._config) ? "vertical" : "horizontal";
   }
 
   getCardSize() {
@@ -499,7 +504,7 @@ class WakeupHelperCardEditor extends HTMLElement {
     this._syncPickerEntities();
     const entity = this._config.entity || "";
     if (this._picker.value !== entity) this._picker.value = entity;
-    const layout = this._config.vertical === true ? "vertical" : "horizontal";
+    const layout = isVerticalLayout(this._config) ? "vertical" : "horizontal";
     if (this._layoutInput.value !== layout) this._layoutInput.value = layout;
 
     const name = this._config.name || "";
@@ -569,7 +574,11 @@ if (!window.customCards.some((card) => card.type === CARD_TAG)) {
         return null;
       }
       return {
-        config: { type: "custom:wakeup-helper-card", entity: entityId },
+        config: {
+          type: "custom:wakeup-helper-card",
+          entity: entityId,
+          vertical: false,
+        },
       };
     },
   });

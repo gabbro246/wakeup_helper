@@ -65,6 +65,12 @@ time. It also shows the next wake-up, a countdown, or the time a nap ends.
 
 No separate dashboard download or resource setup is needed.
 
+New cards use a horizontal layout by default. You can choose **Horizontal** or
+**Vertical** under **Content layout** in the card editor. Horizontal cards start
+at 12 × 1 grid cells and can shrink to 8 × 1. Vertical cards start at 6 × 3 and
+can shrink to 4 × 3. Existing cards keep their previous vertical layout until
+you choose another layout.
+
 ## License
 
 MIT
