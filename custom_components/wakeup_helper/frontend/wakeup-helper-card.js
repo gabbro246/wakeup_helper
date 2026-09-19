@@ -48,10 +48,9 @@ class WakeupHelperCard extends HTMLElement {
   }
 
   getGridOptions() {
-    const wakeup = this._entities().type === "wakeup";
     return {
-      columns: 4,
-      rows: wakeup ? 3 : 2,
+      columns: 6,
+      rows: 3,
       min_columns: 3,
       min_rows: 2,
     };
@@ -194,7 +193,13 @@ class WakeupHelperCard extends HTMLElement {
 
     if (!this._config.entity) {
       this.shadowRoot.innerHTML =
-        "<ha-card><div class=\"empty\">Choose a Wakeup Helper switch in the card settings.</div></ha-card>";
+        "<style>" +
+        this._styles() +
+        "</style>" +
+        '<ha-card class="setup-preview wakeup" aria-label="Wakeup Helper card preview">' +
+        '<div class="preview-mark" aria-hidden="true"><div class="preview-icon"><ha-icon icon="mdi:weather-sunset-up"></ha-icon></div>' +
+        '<div class="preview-feature"><span>−</span><strong>07:00</strong><span>+</span></div></div>' +
+        "</ha-card>";
       return;
     }
 
@@ -202,7 +207,10 @@ class WakeupHelperCard extends HTMLElement {
     const primary = this._state(entities.primary);
     if (!primary) {
       this.shadowRoot.innerHTML =
-        "<ha-card><div class=\"empty\">Entity not found: " +
+        "<style>" +
+        this._styles() +
+        "</style>" +
+        "<ha-card class=\"error-card\"><div class=\"empty\">Entity not found: " +
         escapeHtml(this._config.entity) +
         "</div></ha-card>";
       return;
@@ -385,22 +393,26 @@ class WakeupHelperCard extends HTMLElement {
 
   _styles() {
     return [
-      ":host{display:block;height:100%}",
+      ":host{display:block;height:100%;--wakeup-helper-nap-color:var(--primary-color);--wakeup-helper-wakeup-color:var(--accent-color,var(--primary-color));--wakeup-helper-control-surface:var(--ha-color-fill-neutral-quiet-resting,var(--secondary-background-color));--wakeup-helper-control-hover:var(--ha-color-fill-neutral-quiet-hover,color-mix(in srgb,var(--primary-text-color) 8%,var(--wakeup-helper-control-surface)));--wakeup-helper-control-active:var(--ha-color-fill-neutral-quiet-active,color-mix(in srgb,var(--primary-text-color) 14%,var(--wakeup-helper-control-surface)));--wakeup-helper-focus:var(--ha-color-focus,var(--primary-color));--wakeup-helper-feature-radius:var(--feature-border-radius,var(--ha-card-features-border-radius,var(--ha-border-radius-lg,18px)));--wakeup-helper-content-radius:var(--ha-border-radius-lg,12px)}",
       "ha-card{height:100%;min-height:120px;padding:10px;box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;gap:6px;cursor:pointer}",
-      ".tile-main{min-height:56px;min-width:0;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;outline:none}",
-      ".tile-main:focus-visible{border-radius:12px;box-shadow:inset 0 0 0 2px var(--primary-color)}",
-      ".icon-button{width:42px;height:42px;border:0;border-radius:50%;display:grid;place-items:center;background:var(--secondary-background-color);color:var(--secondary-text-color);cursor:pointer;transition:background .2s ease,color .2s ease}",
-      ".active.nap .icon-button{background:var(--primary-color);color:var(--text-primary-color)}",
-      ".active.wakeup .icon-button{background:var(--accent-color,var(--primary-color));color:var(--text-primary-color)}",
+      ".nap{--routine-color:var(--wakeup-helper-nap-color)}.wakeup{--routine-color:var(--wakeup-helper-wakeup-color)}",
+      ".tile-main{min-height:56px;min-width:0;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:var(--wakeup-helper-content-radius);cursor:pointer;outline:none;transition:background-color .18s ease,box-shadow .18s ease}",
+      ".tile-main:focus-visible,.icon-button:focus-visible,.feature button:focus-visible{box-shadow:inset 0 0 0 2px var(--wakeup-helper-focus);outline:none}",
+      ".icon-button{width:42px;height:42px;border:0;border-radius:var(--ha-border-radius-circle,50%);display:grid;place-items:center;background:var(--wakeup-helper-control-surface);color:var(--ha-color-text-secondary,var(--secondary-text-color));cursor:pointer;transition:background-color .18s ease,color .18s ease,box-shadow .18s ease}",
+      ".active .icon-button{background:color-mix(in srgb,var(--routine-color) 18%,var(--wakeup-helper-control-surface));color:var(--routine-color)}",
+      ".icon-button:hover{background:var(--wakeup-helper-control-hover)}.icon-button:active{background:var(--wakeup-helper-control-active)}",
+      ".active .icon-button:hover{background:color-mix(in srgb,var(--routine-color) 26%,var(--wakeup-helper-control-surface))}.active .icon-button:active{background:color-mix(in srgb,var(--routine-color) 34%,var(--wakeup-helper-control-surface))}",
       ".title{max-width:100%;margin-top:7px;font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
-      ".state{max-width:100%;margin-top:2px;font-size:12px;color:var(--secondary-text-color);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}",
-      ".features{display:grid;gap:6px}.feature{height:36px;border-radius:18px;background:var(--secondary-background-color);display:grid;grid-template-columns:36px minmax(0,1fr) 36px;align-items:center;text-align:center;overflow:hidden}",
-      ".active.nap .feature{background:color-mix(in srgb,var(--primary-color) 18%,var(--secondary-background-color))}",
-      ".active.wakeup .feature{background:color-mix(in srgb,var(--accent-color,var(--primary-color)) 18%,var(--secondary-background-color))}",
-      ".feature button{height:36px;border:0;background:transparent;color:var(--primary-text-color);font-size:20px;cursor:pointer}",
-      ".feature button:hover{background:color-mix(in srgb,var(--primary-text-color) 8%,transparent)}",
+      ".state{max-width:100%;margin-top:2px;font-size:12px;color:var(--ha-color-text-secondary,var(--secondary-text-color));white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}",
+      ".features{display:grid;gap:6px}.feature{height:36px;border-radius:var(--wakeup-helper-feature-radius);background:var(--wakeup-helper-control-surface);display:grid;grid-template-columns:36px minmax(0,1fr) 36px;align-items:center;text-align:center;overflow:hidden;transition:background-color .18s ease}",
+      ".active .feature{background:color-mix(in srgb,var(--routine-color) 18%,var(--wakeup-helper-control-surface))}",
+      ".feature button{height:36px;border:0;background:transparent;color:var(--primary-text-color);font-size:20px;cursor:pointer;transition:background-color .18s ease,box-shadow .18s ease}",
+      ".feature button:hover{background:var(--wakeup-helper-control-hover)}.feature button:active{background:var(--wakeup-helper-control-active)}.feature button:disabled{color:var(--ha-color-text-disabled,var(--disabled-text-color));cursor:not-allowed}",
       ".feature strong{font-size:14px;font-weight:500;font-variant-numeric:tabular-nums}",
-      ".missing,.empty{padding:16px;color:var(--secondary-text-color)}",
+      ".missing,.empty{padding:16px;color:var(--ha-color-text-secondary,var(--secondary-text-color))}",
+      ".setup-preview,.error-card{cursor:default}.setup-preview{justify-content:center;background:var(--ha-card-background,var(--card-background-color))}.preview-mark{width:min(100%,180px);margin:auto;display:grid;justify-items:center;gap:14px}.preview-icon{width:64px;height:64px;border-radius:var(--ha-border-radius-circle,50%);display:grid;place-items:center;background:color-mix(in srgb,var(--routine-color) 18%,var(--wakeup-helper-control-surface));color:var(--routine-color);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--routine-color) 22%,transparent)}.preview-icon ha-icon{--mdc-icon-size:34px}.preview-feature{width:100%;height:36px;border-radius:var(--wakeup-helper-feature-radius);display:grid;grid-template-columns:36px 1fr 36px;align-items:center;text-align:center;background:color-mix(in srgb,var(--routine-color) 12%,var(--wakeup-helper-control-surface));color:var(--primary-text-color)}.preview-feature span{font-size:20px;color:var(--routine-color)}.preview-feature strong{font-size:14px;font-variant-numeric:tabular-nums}",
+      "@media(hover:hover){.tile-main:hover{background:color-mix(in srgb,var(--primary-text-color) 5%,transparent)}}",
+      "@media(prefers-reduced-motion:reduce){.tile-main,.icon-button,.feature,.feature button{transition:none}}",
       "@media(max-width:220px){ha-card{padding:8px}}",
     ].join("");
   }
@@ -416,6 +428,7 @@ class WakeupHelperCardEditor extends HTMLElement {
     this._hass = hass;
     if (this._picker) {
       this._picker.hass = hass;
+      this._syncPickerEntities();
     } else {
       this._render();
     }
@@ -433,15 +446,16 @@ class WakeupHelperCardEditor extends HTMLElement {
   _render() {
     if (!this.shadowRoot || !this._hass || !this._config) return;
     this.shadowRoot.innerHTML =
-      "<style>.editor{display:grid;gap:16px;padding:8px 0}.text{display:grid;gap:6px}.text input{box-sizing:border-box;width:100%;padding:12px;border:1px solid var(--divider-color);border-radius:8px;background:transparent;color:var(--primary-text-color)}</style>" +
+      "<style>.editor{display:grid;gap:16px;padding:8px 0}.text{display:grid;gap:6px}.text input{box-sizing:border-box;width:100%;padding:12px;border:1px solid var(--ha-color-border-neutral-normal,var(--divider-color));border-radius:var(--ha-border-radius-md,8px);background:var(--ha-color-form-background,transparent);color:var(--primary-text-color);transition:background-color .18s ease,border-color .18s ease}.text input:hover{background:var(--ha-color-form-background-hover,var(--ha-color-form-background,transparent));border-color:var(--outline-hover-color,var(--divider-color))}.text input:focus-visible{border-color:var(--ha-color-focus,var(--primary-color));outline:2px solid var(--ha-color-focus,var(--primary-color));outline-offset:1px}@media(prefers-reduced-motion:reduce){.text input{transition:none}}</style>" +
       '<div class="editor"><ha-entity-picker></ha-entity-picker><label class="text">Custom name (optional)<input class="name" value="' +
       escapeHtml(this._config.name || "") +
       '"></label></div>';
 
     this._picker = this.shadowRoot.querySelector("ha-entity-picker");
     this._nameInput = this.shadowRoot.querySelector(".name");
-    this._picker.label = "Routine switch";
+    this._picker.label = "Wakeup Helper routine";
     this._picker.includeDomains = ["switch"];
+    this._syncPickerEntities();
     this._picker.addEventListener("value-changed", (event) =>
       this._change({ entity: event.detail.value }),
     );
@@ -454,6 +468,7 @@ class WakeupHelperCardEditor extends HTMLElement {
   _syncValues() {
     if (!this._picker || !this._nameInput) return;
     this._picker.hass = this._hass;
+    this._syncPickerEntities();
     const entity = this._config.entity || "";
     if (this._picker.value !== entity) this._picker.value = entity;
 
@@ -464,6 +479,26 @@ class WakeupHelperCardEditor extends HTMLElement {
     ) {
       this._nameInput.value = name;
     }
+  }
+
+  _syncPickerEntities() {
+    if (!this._picker || !this._hass) return;
+    const entities = Object.entries(this._hass.states)
+      .filter(
+        ([entityId, state]) =>
+          entityId.startsWith("switch.") &&
+          Boolean(state.attributes?.wakeup_helper_entities),
+      )
+      .map(([entityId]) => entityId);
+    const current = this._picker.includeEntities;
+    if (
+      Array.isArray(current) &&
+      current.length === entities.length &&
+      current.every((entityId, index) => entityId === entities[index])
+    ) {
+      return;
+    }
+    this._picker.includeEntities = entities;
   }
 
   _change(changes) {

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.3
+
+- Made dashboard cards adapt more consistently to themes and interaction states.
+- Added a clear visual preview before a routine is selected.
+- Limited the card editor to Wakeup Helper routine switches.
+- Changed the initial dashboard card size to 6 × 3 grid cells.
+
 ## 0.3.2
 
 - Fixed the card editor dropdown and custom name field losing focus.
