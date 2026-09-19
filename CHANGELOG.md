@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.11
+- Made the custom name field match Home Assistant's standard controls.
+
 ## 0.3.10
 - Made the card editor dropdown match Home Assistant's standard controls.
 

@@ -28,7 +28,7 @@ DEFAULT_BRIGHTNESS: Final = 100
 
 EVENT_WAKEUP: Final = "wakeup_helper_wakeup"
 
-CARD_URL: Final = "/wakeup_helper/wakeup-helper-card.js?v=0.3.10"
+CARD_URL: Final = "/wakeup_helper/wakeup-helper-card.js?v=0.3.11"
 STATIC_URL: Final = "/wakeup_helper"
 
 STORAGE_VERSION: Final = 1
