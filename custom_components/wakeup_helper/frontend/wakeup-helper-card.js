@@ -12,6 +12,11 @@ const isVerticalLayout = (config) =>
   (!Object.prototype.hasOwnProperty.call(config, "vertical") ||
     config.vertical === true);
 
+const defaultGridSize = (vertical) => ({
+  columns: vertical ? 6 : 12,
+  rows: vertical ? 3 : 1,
+});
+
 class WakeupHelperCard extends HTMLElement {
   constructor() {
     super();
@@ -23,7 +28,10 @@ class WakeupHelperCard extends HTMLElement {
   }
 
   static getStubConfig() {
-    return { vertical: false };
+    return {
+      vertical: false,
+      grid_options: defaultGridSize(false),
+    };
   }
 
   setConfig(config) {
@@ -56,17 +64,16 @@ class WakeupHelperCard extends HTMLElement {
   }
 
   getGridOptions() {
-    if (this._layout() === "vertical") {
+    const vertical = this._layout() === "vertical";
+    if (vertical) {
       return {
-        columns: 6,
-        rows: 3,
+        ...defaultGridSize(true),
         min_columns: 4,
         min_rows: 3,
       };
     }
     return {
-      columns: 12,
-      rows: 1,
+      ...defaultGridSize(false),
       min_columns: 8,
       min_rows: 1,
       max_rows: 1,
@@ -489,9 +496,13 @@ class WakeupHelperCardEditor extends HTMLElement {
     this._picker.addEventListener("value-changed", (event) =>
       this._change({ entity: event.detail.value }),
     );
-    this._layoutInput.addEventListener("change", (event) =>
-      this._change({ vertical: event.target.value === "vertical" }),
-    );
+    this._layoutInput.addEventListener("change", (event) => {
+      const vertical = event.target.value === "vertical";
+      this._change({
+        vertical,
+        grid_options: defaultGridSize(vertical),
+      });
+    });
     this._nameInput.addEventListener("input", (event) =>
       this._change({ name: event.target.value || undefined }),
     );
@@ -578,6 +589,7 @@ if (!window.customCards.some((card) => card.type === CARD_TAG)) {
           type: "custom:wakeup-helper-card",
           entity: entityId,
           vertical: false,
+          grid_options: defaultGridSize(false),
         },
       };
     },
