@@ -35,44 +35,36 @@ class WakeupHelperCard extends HTMLElement {
     if (!this._timer) {
       this._timer = setInterval(() => this._updateCountdown(), 1000);
     }
-    this._startResizeObserver();
   }
 
   disconnectedCallback() {
     clearInterval(this._timer);
     this._timer = undefined;
-    this._resizeObserver?.disconnect();
-    this._resizeObserver = undefined;
   }
 
-  _startResizeObserver() {
-    if (
-      this._resizeObserver ||
-      typeof window.ResizeObserver !== "function"
-    ) {
-      return;
-    }
-    this._resizeObserver = new window.ResizeObserver((entries) => {
-      const bounds = entries[0]?.contentRect;
-      if (!bounds) return;
-      const horizontal = bounds.height <= 80;
-      if (this.hasAttribute("horizontal") === horizontal) return;
-      this.toggleAttribute("horizontal", horizontal);
-    });
-    this._resizeObserver.observe(this);
+  _layout() {
+    return this._config?.vertical === true ? "vertical" : "horizontal";
   }
 
   getCardSize() {
-    if (this._entities().type !== "wakeup") return 2;
-    return 3;
+    return this._layout() === "vertical" ? 3 : 1;
   }
 
   getGridOptions() {
+    if (this._layout() === "vertical") {
+      return {
+        columns: 6,
+        rows: 3,
+        min_columns: 4,
+        min_rows: 3,
+      };
+    }
     return {
-      columns: 6,
-      rows: 3,
-      min_columns: 3,
+      columns: 12,
+      rows: 1,
+      min_columns: 8,
       min_rows: 1,
+      max_rows: 1,
     };
   }
 
@@ -216,7 +208,9 @@ class WakeupHelperCard extends HTMLElement {
         "<style>" +
         this._styles() +
         "</style>" +
-        '<ha-card class="setup-preview wakeup" aria-label="Wakeup Helper card preview">' +
+        '<ha-card class="setup-preview wakeup ' +
+        this._layout() +
+        '" aria-label="Wakeup Helper card preview">' +
         '<div class="preview-mark" aria-hidden="true"><div class="preview-icon"><ha-icon icon="mdi:weather-sunset-up"></ha-icon></div>' +
         '<div class="preview-feature"><span>−</span><strong>07:00</strong><span>+</span></div></div>' +
         "</ha-card>";
@@ -230,7 +224,9 @@ class WakeupHelperCard extends HTMLElement {
         "<style>" +
         this._styles() +
         "</style>" +
-        "<ha-card class=\"error-card\"><div class=\"empty\">Entity not found: " +
+        '<ha-card class="error-card ' +
+        this._layout() +
+        '"><div class="empty">Entity not found: ' +
         escapeHtml(this._config.entity) +
         "</div></ha-card>";
       return;
@@ -255,6 +251,8 @@ class WakeupHelperCard extends HTMLElement {
       '<ha-card class="' +
       (active ? "active " : "") +
       entities.type +
+      " " +
+      this._layout() +
       '">' +
       '<div class="tile-main" role="button" tabindex="0" aria-label="Open device"><button class="icon-button" aria-label="Toggle routine">' +
       '<ha-icon icon="' +
@@ -427,15 +425,15 @@ class WakeupHelperCard extends HTMLElement {
       ".feature button{height:36px;border:0;background:transparent;color:var(--primary-text-color);font-size:20px;cursor:pointer;transition:background-color .18s ease,box-shadow .18s ease}",
       ".feature button:disabled{color:var(--ha-color-text-disabled,var(--disabled-text-color));cursor:not-allowed}",
       ".feature strong{font-size:14px;font-weight:500;font-variant-numeric:tabular-nums}",
-      ":host([horizontal]) ha-card{min-height:0;padding:7px 10px;flex-direction:row;align-items:center;gap:10px}",
-      ":host([horizontal]) .tile-main{width:0;min-height:42px;display:grid;grid-template-columns:42px minmax(0,1fr);grid-template-rows:auto auto;column-gap:10px;align-content:center;align-items:center;justify-items:start;text-align:start}",
-      ":host([horizontal]) .icon-button{grid-column:1;grid-row:1/3}",
-      ":host([horizontal]) .title{grid-column:2;grid-row:1;width:100%;margin-top:0}",
-      ":host([horizontal]) .state{grid-column:2;grid-row:2;width:100%;margin-top:1px}",
-      ":host([horizontal]) .features{width:min(42%,180px);min-width:120px;flex:0 1 180px}",
-      ":host([horizontal]) .setup-preview{justify-content:center}",
-      ":host([horizontal]) .preview-mark{width:min(100%,250px);display:grid;grid-template-columns:42px minmax(120px,180px);align-items:center;justify-content:center;gap:12px}",
-      ":host([horizontal]) .preview-icon{width:42px;height:42px}:host([horizontal]) .setup-preview .preview-feature{min-width:0}",
+      "ha-card.horizontal{min-height:0;padding:7px 10px;flex-direction:row;align-items:center;gap:10px}",
+      "ha-card.horizontal .tile-main{width:0;min-height:42px;display:grid;grid-template-columns:42px minmax(0,1fr);grid-template-rows:auto auto;column-gap:10px;align-content:center;align-items:center;justify-items:start;text-align:start}",
+      "ha-card.horizontal .icon-button{grid-column:1;grid-row:1/3}",
+      "ha-card.horizontal .title{grid-column:2;grid-row:1;width:100%;margin-top:0}",
+      "ha-card.horizontal .state{grid-column:2;grid-row:2;width:100%;margin-top:1px}",
+      "ha-card.horizontal .features{width:min(42%,180px);min-width:120px;flex:0 1 180px}",
+      "ha-card.horizontal.setup-preview{justify-content:center}",
+      "ha-card.horizontal .preview-mark{width:min(100%,250px);display:grid;grid-template-columns:42px minmax(120px,180px);align-items:center;justify-content:center;gap:12px}",
+      "ha-card.horizontal .preview-icon{width:42px;height:42px}ha-card.horizontal.setup-preview .preview-feature{min-width:0}",
       ".missing,.empty{padding:16px;color:var(--ha-color-text-secondary,var(--secondary-text-color))}",
       ".setup-preview,.error-card{cursor:default}.setup-preview{justify-content:center;background:var(--ha-card-background,var(--card-background-color))}.preview-mark{width:min(100%,180px);margin:auto;display:grid;justify-items:center;gap:14px}.preview-icon{width:64px;height:64px;border-radius:var(--ha-border-radius-circle,50%);display:grid;place-items:center;background:color-mix(in srgb,var(--routine-color) 18%,var(--wakeup-helper-control-surface));color:var(--routine-color);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--routine-color) 22%,transparent)}.preview-icon ha-icon{--mdc-icon-size:34px}.preview-feature{width:100%;height:36px;border-radius:var(--wakeup-helper-feature-radius);display:grid;grid-template-columns:36px 1fr 36px;align-items:center;text-align:center;background:color-mix(in srgb,var(--routine-color) 12%,var(--wakeup-helper-control-surface));color:var(--primary-text-color)}.preview-feature span{font-size:20px;color:var(--routine-color)}.preview-feature strong{font-size:14px;font-variant-numeric:tabular-nums}",
       "@media(prefers-reduced-motion:reduce){.tile-main,.icon-button,.feature,.feature button{transition:none}}",
@@ -472,18 +470,22 @@ class WakeupHelperCardEditor extends HTMLElement {
   _render() {
     if (!this.shadowRoot || !this._hass || !this._config) return;
     this.shadowRoot.innerHTML =
-      "<style>.editor{display:grid;gap:16px;padding:8px 0}.text{display:grid;gap:6px}.text input{box-sizing:border-box;width:100%;padding:12px;border:1px solid var(--ha-color-border-neutral-normal,var(--divider-color));border-radius:var(--ha-border-radius-md,8px);background:var(--ha-color-form-background,transparent);color:var(--primary-text-color);transition:border-color .18s ease}.text input:focus-visible{border-color:var(--ha-color-focus,var(--primary-color));outline:2px solid var(--ha-color-focus,var(--primary-color));outline-offset:1px}@media(prefers-reduced-motion:reduce){.text input{transition:none}}</style>" +
-      '<div class="editor"><ha-entity-picker></ha-entity-picker><label class="text">Custom name (optional)<input class="name" value="' +
+      "<style>.editor{display:grid;gap:16px;padding:8px 0}.field{display:grid;gap:6px}.field input,.field select{box-sizing:border-box;width:100%;padding:12px;border:1px solid var(--ha-color-border-neutral-normal,var(--divider-color));border-radius:var(--ha-border-radius-md,8px);background:var(--ha-color-form-background,var(--card-background-color));color:var(--primary-text-color);font:inherit;transition:border-color .18s ease}.field input:focus-visible,.field select:focus-visible{border-color:var(--ha-color-focus,var(--primary-color));outline:2px solid var(--ha-color-focus,var(--primary-color));outline-offset:1px}@media(prefers-reduced-motion:reduce){.field input,.field select{transition:none}}</style>" +
+      '<div class="editor"><ha-entity-picker></ha-entity-picker><label class="field">Content layout<select class="layout"><option value="horizontal">Horizontal</option><option value="vertical">Vertical</option></select></label><label class="field">Custom name (optional)<input class="name" value="' +
       escapeHtml(this._config.name || "") +
       '"></label></div>';
 
     this._picker = this.shadowRoot.querySelector("ha-entity-picker");
     this._nameInput = this.shadowRoot.querySelector(".name");
+    this._layoutInput = this.shadowRoot.querySelector(".layout");
     this._picker.label = "Wakeup Helper routine";
     this._picker.includeDomains = ["switch"];
     this._syncPickerEntities();
     this._picker.addEventListener("value-changed", (event) =>
       this._change({ entity: event.detail.value }),
+    );
+    this._layoutInput.addEventListener("change", (event) =>
+      this._change({ vertical: event.target.value === "vertical" }),
     );
     this._nameInput.addEventListener("input", (event) =>
       this._change({ name: event.target.value || undefined }),
@@ -492,11 +494,13 @@ class WakeupHelperCardEditor extends HTMLElement {
   }
 
   _syncValues() {
-    if (!this._picker || !this._nameInput) return;
+    if (!this._picker || !this._nameInput || !this._layoutInput) return;
     this._picker.hass = this._hass;
     this._syncPickerEntities();
     const entity = this._config.entity || "";
     if (this._picker.value !== entity) this._picker.value = entity;
+    const layout = this._config.vertical === true ? "vertical" : "horizontal";
+    if (this._layoutInput.value !== layout) this._layoutInput.value = layout;
 
     const name = this._config.name || "";
     if (

@@ -8,6 +8,9 @@ wake_up_light:
   type: custom:wakeup-helper-card
   entity: switch.bedroom_wake_up_light
 
+
+# Horizontal is the default. Add this to either card for the vertical layout:
+# vertical: true
 # If you renamed individual entities, point the card at them explicitly:
 # alarm_time_entity: time.my_alarm
 # duration_entity: number.my_fade_duration

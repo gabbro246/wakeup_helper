@@ -5,7 +5,6 @@ from __future__ import annotations
 from datetime import time
 
 from homeassistant.components.time import TimeEntity
-from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
@@ -30,7 +29,6 @@ class AlarmTimeEntity(WakeupHelperEntity, TimeEntity):
 
     _attr_translation_key = "alarm_time"
     _attr_icon = "mdi:alarm"
-    _attr_entity_category = EntityCategory.CONFIG
 
     def __init__(
         self, entry: WakeupHelperConfigEntry, controller: WakeupController

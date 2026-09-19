@@ -42,7 +42,6 @@ class NapDurationNumber(WakeupHelperEntity, NumberEntity):
     _attr_native_max_value = 90
     _attr_native_step = 5
     _attr_mode = NumberMode.BOX
-    _attr_entity_category = EntityCategory.CONFIG
 
     def __init__(
         self, entry: WakeupHelperConfigEntry, controller: NapController
