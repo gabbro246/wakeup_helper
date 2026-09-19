@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.13
+- Updated the integration icon with a clearer sunrise and transparent background.
+
 ## 0.3.12
 - Added a Features card layout with the icon and details above its controls.
 - Made card controls the same height as Home Assistant tile-card controls.

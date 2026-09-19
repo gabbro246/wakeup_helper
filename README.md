@@ -75,4 +75,4 @@ layout.
 
 ## License
 
-MIT
+[MIT](LICENSE)
