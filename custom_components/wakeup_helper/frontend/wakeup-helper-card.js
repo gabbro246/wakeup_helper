@@ -12,10 +12,21 @@ const isVerticalLayout = (config) =>
   (!Object.prototype.hasOwnProperty.call(config, "vertical") ||
     config.vertical === true);
 
-const defaultGridSize = (vertical) => ({
-  columns: vertical ? 6 : 12,
-  rows: vertical ? 3 : 1,
-});
+const layoutForConfig = (config) =>
+  config?.content_layout === "features"
+    ? "features"
+    : isVerticalLayout(config)
+      ? "vertical"
+      : "horizontal";
+
+const defaultGridSize = (layout) => {
+  const vertical = layout === true || layout === "vertical";
+  const features = layout === "features";
+  return {
+    columns: vertical || features ? 6 : 12,
+    rows: vertical ? 3 : features ? 2 : 1,
+  };
+};
 
 class WakeupHelperCard extends HTMLElement {
   constructor() {
@@ -56,24 +67,32 @@ class WakeupHelperCard extends HTMLElement {
   }
 
   _layout() {
-    return isVerticalLayout(this._config) ? "vertical" : "horizontal";
+    return layoutForConfig(this._config);
   }
 
   getCardSize() {
-    return this._layout() === "vertical" ? 3 : 1;
+    const layout = this._layout();
+    return layout === "vertical" ? 3 : layout === "features" ? 2 : 1;
   }
 
   getGridOptions() {
-    const vertical = this._layout() === "vertical";
-    if (vertical) {
+    const layout = this._layout();
+    if (layout === "vertical") {
       return {
-        ...defaultGridSize(true),
+        ...defaultGridSize("vertical"),
         min_columns: 4,
         min_rows: 3,
       };
     }
+    if (layout === "features") {
+      return {
+        ...defaultGridSize("features"),
+        min_columns: 4,
+        min_rows: 2,
+      };
+    }
     return {
-      ...defaultGridSize(false),
+      ...defaultGridSize("horizontal"),
       min_columns: 8,
       min_rows: 1,
       max_rows: 1,
@@ -432,9 +451,9 @@ class WakeupHelperCard extends HTMLElement {
       ".active .icon-button{background:color-mix(in srgb,var(--routine-color) 18%,var(--wakeup-helper-control-surface));color:var(--routine-color)}",
       ".title{max-width:100%;margin-top:7px;font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
       ".state{max-width:100%;margin-top:2px;font-size:12px;color:var(--ha-color-text-secondary,var(--secondary-text-color));white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}",
-      ".features{display:grid;gap:6px}.feature{height:36px;border-radius:var(--wakeup-helper-feature-radius);background:var(--wakeup-helper-control-surface);display:grid;grid-template-columns:36px minmax(0,1fr) 36px;align-items:center;text-align:center;overflow:hidden;transition:background-color .18s ease}",
+      ".features{display:grid;gap:6px}.feature{height:40px;border-radius:var(--wakeup-helper-feature-radius);background:var(--wakeup-helper-control-surface);display:grid;grid-template-columns:40px minmax(0,1fr) 40px;align-items:center;text-align:center;overflow:hidden;transition:background-color .18s ease}",
       ".active .feature{background:color-mix(in srgb,var(--routine-color) 18%,var(--wakeup-helper-control-surface))}",
-      ".feature button{height:36px;border:0;background:transparent;color:var(--primary-text-color);font-size:20px;cursor:pointer;transition:background-color .18s ease,box-shadow .18s ease}",
+      ".feature button{height:40px;border:0;background:transparent;color:var(--primary-text-color);font-size:20px;cursor:pointer;transition:background-color .18s ease,box-shadow .18s ease}",
       ".feature button:disabled{color:var(--ha-color-text-disabled,var(--disabled-text-color));cursor:not-allowed}",
       ".feature strong{font-size:14px;font-weight:500;font-variant-numeric:tabular-nums}",
       "ha-card.horizontal{min-height:0;padding:7px 10px;flex-direction:row;align-items:center;gap:10px}",
@@ -446,8 +465,17 @@ class WakeupHelperCard extends HTMLElement {
       "ha-card.horizontal.setup-preview{justify-content:center}",
       "ha-card.horizontal .preview-mark{width:min(100%,250px);display:grid;grid-template-columns:42px minmax(120px,180px);align-items:center;justify-content:center;gap:12px}",
       "ha-card.horizontal .preview-icon{width:42px;height:42px}ha-card.horizontal.setup-preview .preview-feature{min-width:0}",
+      "ha-card.features{min-height:0;padding:10px;gap:6px}",
+      "ha-card.features .tile-main{min-height:42px;display:grid;grid-template-columns:42px minmax(0,1fr);grid-template-rows:auto auto;column-gap:10px;align-content:center;align-items:center;justify-items:start;text-align:start}",
+      "ha-card.features .icon-button{grid-column:1;grid-row:1/3}",
+      "ha-card.features .title{grid-column:2;grid-row:1;width:100%;margin-top:0}",
+      "ha-card.features .state{grid-column:2;grid-row:2;width:100%;margin-top:1px}",
+      "ha-card.features .features{width:100%;flex:0 0 auto}",
+      "ha-card.features.setup-preview{justify-content:center}",
+      "ha-card.features .preview-mark{width:min(100%,180px);display:grid;grid-template-columns:42px minmax(0,1fr);align-items:center;gap:10px}",
+      "ha-card.features .preview-icon{width:42px;height:42px}ha-card.features.setup-preview .preview-feature{grid-column:1/-1;width:100%}",
       ".missing,.empty{padding:16px;color:var(--ha-color-text-secondary,var(--secondary-text-color))}",
-      ".setup-preview,.error-card{cursor:default}.setup-preview{justify-content:center;background:var(--ha-card-background,var(--card-background-color))}.preview-mark{width:min(100%,180px);margin:auto;display:grid;justify-items:center;gap:14px}.preview-icon{width:64px;height:64px;border-radius:var(--ha-border-radius-circle,50%);display:grid;place-items:center;background:color-mix(in srgb,var(--routine-color) 18%,var(--wakeup-helper-control-surface));color:var(--routine-color);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--routine-color) 22%,transparent)}.preview-icon ha-icon{--mdc-icon-size:34px}.preview-feature{width:100%;height:36px;border-radius:var(--wakeup-helper-feature-radius);display:grid;grid-template-columns:36px 1fr 36px;align-items:center;text-align:center;background:color-mix(in srgb,var(--routine-color) 12%,var(--wakeup-helper-control-surface));color:var(--primary-text-color)}.preview-feature span{font-size:20px;color:var(--routine-color)}.preview-feature strong{font-size:14px;font-variant-numeric:tabular-nums}",
+      ".setup-preview,.error-card{cursor:default}.setup-preview{justify-content:center;background:var(--ha-card-background,var(--card-background-color))}.preview-mark{width:min(100%,180px);margin:auto;display:grid;justify-items:center;gap:14px}.preview-icon{width:64px;height:64px;border-radius:var(--ha-border-radius-circle,50%);display:grid;place-items:center;background:color-mix(in srgb,var(--routine-color) 18%,var(--wakeup-helper-control-surface));color:var(--routine-color);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--routine-color) 22%,transparent)}.preview-icon ha-icon{--mdc-icon-size:34px}.preview-feature{width:100%;height:40px;border-radius:var(--wakeup-helper-feature-radius);display:grid;grid-template-columns:40px 1fr 40px;align-items:center;text-align:center;background:color-mix(in srgb,var(--routine-color) 12%,var(--wakeup-helper-control-surface));color:var(--primary-text-color)}.preview-feature span{font-size:20px;color:var(--routine-color)}.preview-feature strong{font-size:14px;font-variant-numeric:tabular-nums}",
       "@media(prefers-reduced-motion:reduce){.tile-main,.icon-button,.feature,.feature button{transition:none}}",
       "@media(max-width:220px){ha-card{padding:8px}}",
     ].join("");
@@ -497,6 +525,7 @@ class WakeupHelperCardEditor extends HTMLElement {
         mode: "dropdown",
         options: [
           { label: "Horizontal", value: "horizontal" },
+          { label: "Features", value: "features" },
           { label: "Vertical", value: "vertical" },
         ],
       },
@@ -512,10 +541,11 @@ class WakeupHelperCardEditor extends HTMLElement {
       this._change({ entity: event.detail.value }),
     );
     this._layoutInput.addEventListener("value-changed", (event) => {
-      const vertical = event.detail.value === "vertical";
+      const layout = event.detail.value;
       this._change({
-        vertical,
-        grid_options: defaultGridSize(vertical),
+        vertical: layout === "vertical",
+        content_layout: layout === "features" ? "features" : undefined,
+        grid_options: defaultGridSize(layout),
       });
     });
     this._nameInput.addEventListener("value-changed", (event) =>
@@ -532,7 +562,7 @@ class WakeupHelperCardEditor extends HTMLElement {
     this._nameInput.hass = this._hass;
     const entity = this._config.entity || "";
     if (this._picker.value !== entity) this._picker.value = entity;
-    const layout = isVerticalLayout(this._config) ? "vertical" : "horizontal";
+    const layout = layoutForConfig(this._config);
     if (this._layoutInput.value !== layout) this._layoutInput.value = layout;
 
     const name = this._config.name || "";

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.12
+- Added a Features card layout with the icon and details above its controls.
+- Made card controls the same height as Home Assistant tile-card controls.
+
 ## 0.3.11
 - Made the custom name field match Home Assistant's standard controls.
 
