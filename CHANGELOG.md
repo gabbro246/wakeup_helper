@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.8
+- Added update notes in HACS so you can see what changed before installing an update.
+
 ## 0.3.7
 - Kept existing dashboard cards in their previous vertical layout.
 - Fixed old card files continuing to load after updates.
