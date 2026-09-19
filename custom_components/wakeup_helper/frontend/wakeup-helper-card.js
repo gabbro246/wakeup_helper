@@ -464,6 +464,7 @@ class WakeupHelperCardEditor extends HTMLElement {
     this._hass = hass;
     if (this._picker) {
       this._picker.hass = hass;
+      if (this._layoutInput) this._layoutInput.hass = hass;
       this._syncPickerEntities();
     } else {
       this._render();
@@ -482,22 +483,33 @@ class WakeupHelperCardEditor extends HTMLElement {
   _render() {
     if (!this.shadowRoot || !this._hass || !this._config) return;
     this.shadowRoot.innerHTML =
-      "<style>.editor{display:grid;gap:16px;padding:8px 0}.field{display:grid;gap:6px}.field input,.field select{box-sizing:border-box;width:100%;padding:12px;border:1px solid var(--ha-color-border-neutral-normal,var(--divider-color));border-radius:var(--ha-border-radius-md,8px);background:var(--ha-color-form-background,var(--card-background-color));color:var(--primary-text-color);font:inherit;transition:border-color .18s ease}.field input:focus-visible,.field select:focus-visible{border-color:var(--ha-color-focus,var(--primary-color));outline:2px solid var(--ha-color-focus,var(--primary-color));outline-offset:1px}@media(prefers-reduced-motion:reduce){.field input,.field select{transition:none}}</style>" +
-      '<div class="editor"><ha-entity-picker></ha-entity-picker><label class="field">Content layout<select class="layout"><option value="horizontal">Horizontal</option><option value="vertical">Vertical</option></select></label><label class="field">Custom name (optional)<input class="name" value="' +
+      "<style>.editor{display:grid;gap:16px;padding:8px 2px;overflow:visible}.field{display:grid;gap:6px}.field input{box-sizing:border-box;width:100%;padding:12px;border:1px solid var(--ha-color-border-neutral-normal,var(--divider-color));border-radius:var(--ha-border-radius-md,8px);background:var(--ha-color-form-background,var(--card-background-color));color:var(--primary-text-color);font:inherit;transition:border-color .18s ease}.field input:focus-visible{border-color:var(--ha-color-focus,var(--primary-color));outline:2px solid var(--ha-color-focus,var(--primary-color));outline-offset:1px}@media(prefers-reduced-motion:reduce){.field input{transition:none}}</style>" +
+      '<div class="editor"><ha-entity-picker></ha-entity-picker><ha-selector class="layout"></ha-selector><label class="field">Custom name (optional)<input class="name" value="' +
       escapeHtml(this._config.name || "") +
       '"></label></div>';
 
     this._picker = this.shadowRoot.querySelector("ha-entity-picker");
     this._nameInput = this.shadowRoot.querySelector(".name");
     this._layoutInput = this.shadowRoot.querySelector(".layout");
+    this._layoutInput.hass = this._hass;
+    this._layoutInput.label = "Content layout";
+    this._layoutInput.selector = {
+      select: {
+        mode: "dropdown",
+        options: [
+          { label: "Horizontal", value: "horizontal" },
+          { label: "Vertical", value: "vertical" },
+        ],
+      },
+    };
     this._picker.label = "Wakeup Helper routine";
     this._picker.includeDomains = ["switch"];
     this._syncPickerEntities();
     this._picker.addEventListener("value-changed", (event) =>
       this._change({ entity: event.detail.value }),
     );
-    this._layoutInput.addEventListener("change", (event) => {
-      const vertical = event.target.value === "vertical";
+    this._layoutInput.addEventListener("value-changed", (event) => {
+      const vertical = event.detail.value === "vertical";
       this._change({
         vertical,
         grid_options: defaultGridSize(vertical),
@@ -513,6 +525,7 @@ class WakeupHelperCardEditor extends HTMLElement {
     if (!this._picker || !this._nameInput || !this._layoutInput) return;
     this._picker.hass = this._hass;
     this._syncPickerEntities();
+    this._layoutInput.hass = this._hass;
     const entity = this._config.entity || "";
     if (this._picker.value !== entity) this._picker.value = entity;
     const layout = isVerticalLayout(this._config) ? "vertical" : "horizontal";

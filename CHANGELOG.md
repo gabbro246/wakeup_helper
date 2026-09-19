@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.10
+- Made the card editor dropdown match Home Assistant's standard controls.
+
 ## 0.3.9
 - Fixed new horizontal cards to start at 12 × 1 while keeping 8 columns as the minimum.
 
