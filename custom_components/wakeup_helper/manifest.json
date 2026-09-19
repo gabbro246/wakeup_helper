@@ -3,11 +3,11 @@
   "name": "Wakeup Helper",
   "codeowners": ["@gabbro246"],
   "config_flow": true,
-  "dependencies": ["frontend", "http"],
+  "dependencies": ["frontend", "http", "lovelace"],
   "documentation": "https://github.com/gabbro246/wakeup_helper",
   "integration_type": "device",
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/gabbro246/wakeup_helper/issues",
   "requirements": [],
-  "version": "0.3.13"
+  "version": "0.3.14"
 }

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.14
+- Fixed dashboard cards sometimes showing a configuration error after a restart.
+- Cards now load reliably without repeated restarts or forced browser refreshes.
+
 ## 0.3.13
 - Updated the integration icon with a clearer sunrise and transparent background.
 
