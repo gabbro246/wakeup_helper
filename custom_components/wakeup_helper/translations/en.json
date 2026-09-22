@@ -5,8 +5,9 @@
       "user": {
         "title": "Add a sleep routine",
         "description": "Choose the kind of routine you want to create. You can add more routines later.",
-        "data": {
-          "routine_type": "Routine type"
+        "menu_options": {
+          "nap": "Nap mode",
+          "wakeup": "Wake-up light"
         }
       },
       "nap": {

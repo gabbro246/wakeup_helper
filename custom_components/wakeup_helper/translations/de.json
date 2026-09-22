@@ -5,8 +5,9 @@
       "user": {
         "title": "Schlafroutine hinzufügen",
         "description": "Wähle aus, welche Routine du erstellen möchtest. Weitere Routinen können später hinzugefügt werden.",
-        "data": {
-          "routine_type": "Art der Routine"
+        "menu_options": {
+          "nap": "Nickerchen",
+          "wakeup": "Aufwachlicht"
         }
       },
       "nap": {

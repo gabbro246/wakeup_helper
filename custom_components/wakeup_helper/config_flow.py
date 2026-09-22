@@ -13,9 +13,6 @@ from homeassistant.helpers.selector import (
     NumberSelector,
     NumberSelectorConfig,
     NumberSelectorMode,
-    SelectSelector,
-    SelectSelectorConfig,
-    SelectSelectorMode,
     TextSelector,
     TimeSelector,
 )
@@ -138,29 +135,9 @@ class WakeupHelperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
         """Choose which type of routine to create."""
-        if user_input is not None:
-            if user_input[CONF_ROUTINE_TYPE] == ROUTINE_NAP:
-                return await self.async_step_nap()
-            return await self.async_step_wakeup()
-
-        return self.async_show_form(
+        return self.async_show_menu(
             step_id="user",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(CONF_ROUTINE_TYPE): SelectSelector(
-                        SelectSelectorConfig(
-                            options=[
-                                {"value": ROUTINE_NAP, "label": "Nap mode"},
-                                {
-                                    "value": ROUTINE_WAKEUP,
-                                    "label": "Wake-up light",
-                                },
-                            ],
-                            mode=SelectSelectorMode.DROPDOWN,
-                        )
-                    )
-                }
-            ),
+            menu_options=["nap", "wakeup"],
         )
 
     async def async_step_nap(

@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.15
+- Replaced the routine type dropdown with separate Nap mode and Wake-up light choices.
+
 ## 0.3.14
 - Fixed dashboard cards sometimes showing a configuration error after a restart.
 - Cards now load reliably without repeated restarts or forced browser refreshes.
