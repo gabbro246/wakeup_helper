@@ -15,8 +15,8 @@
         "description": "Starting this routine closes the covers and turns off the lights. The covers open when the nap ends.",
         "data": {
           "name": "Name",
-          "lights": "Lights",
-          "covers": "Covers",
+          "lights": "Lights, devices, or areas",
+          "covers": "Covers, devices, or areas",
           "duration": "Initial duration"
         },
         "data_description": {
@@ -29,7 +29,7 @@
         "description": "The selected lights gradually brighten and reach the chosen brightness at the alarm time.",
         "data": {
           "name": "Name",
-          "lights": "Lights",
+          "lights": "Lights, devices, or areas",
           "alarm_time": "Initial alarm time",
           "fade_duration": "Initial fade-in duration",
           "brightness": "Initial end brightness",
@@ -48,19 +48,15 @@
         "title": "Edit routine targets",
         "description": "Choose individual entities, whole areas, or both.",
         "data": {
-          "lights": "Lights",
-          "light_areas": "Areas for lights",
-          "covers": "Covers",
-          "cover_areas": "Areas for covers",
-          "end_lights": "Lights to turn on when a nap ends",
-          "end_light_areas": "Areas whose lights turn on when a nap ends",
+          "lights": "Lights, devices, or areas",
+          "covers": "Covers, devices, or areas",
+          "end_lights": "Lights, devices, or areas to turn on when a nap ends",
           "alarm_script": "Script to run at alarm time"
         },
         "data_description": {
-          "light_areas": "The routine affects every light assigned to these areas.",
-          "cover_areas": "The routine affects every cover assigned to these areas.",
+          "lights": "Select individual lights or target every light in an area.",
+          "covers": "Select individual covers or target every cover in an area.",
           "end_lights": "These are separate from the lights that turn off when the nap starts.",
-          "end_light_areas": "Every light in these areas can turn on when the nap ends.",
           "alarm_script": "Optional. Clear this field to stop running a script."
         }
       }
@@ -68,6 +64,18 @@
   },
   "entity": {
     "switch": {
+      "nap_control": {
+        "name": "Nap mode"
+      },
+      "wakeup_control": {
+        "name": "Wake-up light"
+      },
+      "turn_off_lights_at_start": {
+        "name": "Turn off lights when nap starts"
+      },
+      "close_covers_at_start": {
+        "name": "Close covers when nap starts"
+      },
       "turn_on_lights_at_end": {
         "name": "Turn on lights when nap ends"
       },

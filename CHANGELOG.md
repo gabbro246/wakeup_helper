@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.1
+- Combined room and individual-device choices into one optional selector.
+- Added switches for turning off lights and closing covers when a nap starts.
+- Hid unused action switches and fixed the divider between the main controls.
+
 ## 0.4.0
 - Added whole-room selection alongside individual lights and covers.
 - Added separate nap-end lights and switches for opening covers or turning on lights.

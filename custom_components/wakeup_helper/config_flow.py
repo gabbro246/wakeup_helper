@@ -8,13 +8,13 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.helpers.selector import (
-    AreaSelector,
-    AreaSelectorConfig,
     EntitySelector,
     EntitySelectorConfig,
     NumberSelector,
     NumberSelectorConfig,
     NumberSelectorMode,
+    TargetSelector,
+    TargetSelectorConfig,
     TextSelector,
     TimeSelector,
 )
@@ -43,16 +43,56 @@ from .const import (
 )
 
 
-def _lights_selector() -> EntitySelector:
-    return EntitySelector(EntitySelectorConfig(domain="light", multiple=True))
+def _target_selector(domain: str) -> TargetSelector:
+    return TargetSelector(
+        TargetSelectorConfig(entity=EntitySelectorConfig(domain=domain))
+    )
 
 
-def _covers_selector() -> EntitySelector:
-    return EntitySelector(EntitySelectorConfig(domain="cover", multiple=True))
+def _target_value(
+    values: dict[str, Any],
+    key: str,
+    legacy_area_key: str | None = None,
+) -> dict[str, list[str]]:
+    """Return a native target while accepting pre-0.4.1 stored selections."""
+    stored = values.get(key)
+    target: dict[str, list[str]] = {}
+    if isinstance(stored, dict):
+        for target_key in ("entity_id", "device_id", "area_id"):
+            selected = stored.get(target_key)
+            if isinstance(selected, str):
+                target[target_key] = [selected]
+            elif selected:
+                target[target_key] = list(selected)
+    elif isinstance(stored, str):
+        target["entity_id"] = [stored]
+    elif stored:
+        target["entity_id"] = list(stored)
+
+    if (
+        not isinstance(stored, dict)
+        and legacy_area_key
+        and (legacy_areas := values.get(legacy_area_key))
+    ):
+        area_ids = target.setdefault("area_id", [])
+        for area_id in (
+            [legacy_areas] if isinstance(legacy_areas, str) else legacy_areas
+        ):
+            if area_id not in area_ids:
+                area_ids.append(area_id)
+    return target
 
 
-def _areas_selector() -> AreaSelector:
-    return AreaSelector(AreaSelectorConfig(multiple=True))
+def _optional_target(
+    key: str,
+    values: dict[str, Any],
+    legacy_area_key: str | None = None,
+) -> Any:
+    """Return an optional field with the stored selection shown as a suggestion."""
+    target = _target_value(values, key, legacy_area_key)
+    if target:
+        return vol.Optional(key, description={"suggested_value": target})
+    return vol.Optional(key)
 
 
 def _script_selector() -> EntitySelector:
@@ -66,12 +106,12 @@ def _nap_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
             vol.Required(
                 CONF_NAME, default=values.get(CONF_NAME, "Bedroom nap")
             ): TextSelector(),
-            vol.Required(
-                CONF_LIGHTS, default=values.get(CONF_LIGHTS, [])
-            ): _lights_selector(),
-            vol.Required(
-                CONF_COVERS, default=values.get(CONF_COVERS, [])
-            ): _covers_selector(),
+            _optional_target(
+                CONF_LIGHTS, values, CONF_LIGHT_AREAS
+            ): _target_selector("light"),
+            _optional_target(
+                CONF_COVERS, values, CONF_COVER_AREAS
+            ): _target_selector("cover"),
             vol.Required(
                 CONF_DURATION,
                 default=values.get(CONF_DURATION, DEFAULT_NAP_DURATION),
@@ -94,9 +134,9 @@ def _wakeup_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
         vol.Required(
             CONF_NAME, default=values.get(CONF_NAME, "Bedroom wake-up light")
         ): TextSelector(),
-        vol.Required(
-            CONF_LIGHTS, default=values.get(CONF_LIGHTS, [])
-        ): _lights_selector(),
+        _optional_target(
+            CONF_LIGHTS, values, CONF_LIGHT_AREAS
+        ): _target_selector("light"),
         vol.Required(
             CONF_ALARM_TIME,
             default=values.get(CONF_ALARM_TIME, DEFAULT_ALARM_TIME),
@@ -205,44 +245,34 @@ class WakeupHelperOptionsFlow(config_entries.OptionsFlow):
         current = {**self._entry.data, **self._entry.options}
 
         if user_input is not None:
+            target_keys = [CONF_LIGHTS]
+            if routine_type == ROUTINE_NAP:
+                target_keys.extend([CONF_COVERS, CONF_END_LIGHTS])
+            for key in target_keys:
+                user_input.setdefault(key, {})
             return self.async_create_entry(title="", data=user_input)
 
         if routine_type == ROUTINE_NAP:
             schema = vol.Schema(
                 {
-                    vol.Required(
-                        CONF_LIGHTS, default=current.get(CONF_LIGHTS, [])
-                    ): _lights_selector(),
-                    vol.Required(
-                        CONF_LIGHT_AREAS,
-                        default=current.get(CONF_LIGHT_AREAS, []),
-                    ): _areas_selector(),
-                    vol.Required(
-                        CONF_COVERS, default=current.get(CONF_COVERS, [])
-                    ): _covers_selector(),
-                    vol.Required(
-                        CONF_COVER_AREAS,
-                        default=current.get(CONF_COVER_AREAS, []),
-                    ): _areas_selector(),
-                    vol.Required(
+                    _optional_target(
+                        CONF_LIGHTS, current, CONF_LIGHT_AREAS
+                    ): _target_selector("light"),
+                    _optional_target(
+                        CONF_COVERS, current, CONF_COVER_AREAS
+                    ): _target_selector("cover"),
+                    _optional_target(
                         CONF_END_LIGHTS,
-                        default=current.get(CONF_END_LIGHTS, []),
-                    ): _lights_selector(),
-                    vol.Required(
+                        current,
                         CONF_END_LIGHT_AREAS,
-                        default=current.get(CONF_END_LIGHT_AREAS, []),
-                    ): _areas_selector(),
+                    ): _target_selector("light"),
                 }
             )
         else:
             fields: dict[Any, Any] = {
-                vol.Required(
-                    CONF_LIGHTS, default=current.get(CONF_LIGHTS, [])
-                ): _lights_selector(),
-                vol.Required(
-                    CONF_LIGHT_AREAS,
-                    default=current.get(CONF_LIGHT_AREAS, []),
-                ): _areas_selector(),
+                _optional_target(
+                    CONF_LIGHTS, current, CONF_LIGHT_AREAS
+                ): _target_selector("light"),
             }
             if script := current.get(CONF_ALARM_SCRIPT):
                 fields[vol.Optional(CONF_ALARM_SCRIPT, default=script)] = (

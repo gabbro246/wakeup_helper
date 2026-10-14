@@ -15,8 +15,8 @@
         "description": "Beim Start werden die Rollos geschlossen und die Lichter ausgeschaltet. Am Ende werden die Rollos geöffnet.",
         "data": {
           "name": "Name",
-          "lights": "Lichter",
-          "covers": "Rollos",
+          "lights": "Lichter, Geräte oder Bereiche",
+          "covers": "Rollos, Geräte oder Bereiche",
           "duration": "Anfängliche Dauer"
         },
         "data_description": {
@@ -29,7 +29,7 @@
         "description": "Die ausgewählten Lichter werden langsam heller und erreichen zur Weckzeit die gewünschte Helligkeit.",
         "data": {
           "name": "Name",
-          "lights": "Lichter",
+          "lights": "Lichter, Geräte oder Bereiche",
           "alarm_time": "Anfängliche Weckzeit",
           "fade_duration": "Anfängliche Aufblenddauer",
           "brightness": "Anfängliche Endhelligkeit",
@@ -48,19 +48,15 @@
         "title": "Ziele der Routine bearbeiten",
         "description": "Wähle einzelne Geräte, ganze Bereiche oder beides aus.",
         "data": {
-          "lights": "Lichter",
-          "light_areas": "Bereiche für Lichter",
-          "covers": "Rollos",
-          "cover_areas": "Bereiche für Rollos",
-          "end_lights": "Lichter, die am Ende des Nickerchens eingeschaltet werden",
-          "end_light_areas": "Bereiche, deren Lichter am Ende eingeschaltet werden",
+          "lights": "Lichter, Geräte oder Bereiche",
+          "covers": "Rollos, Geräte oder Bereiche",
+          "end_lights": "Lichter, Geräte oder Bereiche, die am Ende eingeschaltet werden",
           "alarm_script": "Skript zur Weckzeit"
         },
         "data_description": {
-          "light_areas": "Die Routine steuert alle Lichter, die diesen Bereichen zugeordnet sind.",
-          "cover_areas": "Die Routine steuert alle Rollos, die diesen Bereichen zugeordnet sind.",
+          "lights": "Wähle einzelne Lichter oder alle Lichter eines Bereichs aus.",
+          "covers": "Wähle einzelne Rollos oder alle Rollos eines Bereichs aus.",
           "end_lights": "Diese Auswahl ist unabhängig von den Lichtern, die zu Beginn ausgeschaltet werden.",
-          "end_light_areas": "Alle Lichter in diesen Bereichen können am Ende eingeschaltet werden.",
           "alarm_script": "Optional. Leere dieses Feld, um kein Skript mehr auszuführen."
         }
       }
@@ -68,6 +64,18 @@
   },
   "entity": {
     "switch": {
+      "nap_control": {
+        "name": "Nickerchen"
+      },
+      "wakeup_control": {
+        "name": "Aufwachlicht"
+      },
+      "turn_off_lights_at_start": {
+        "name": "Lichter zu Beginn ausschalten"
+      },
+      "close_covers_at_start": {
+        "name": "Rollos zu Beginn schließen"
+      },
       "turn_on_lights_at_end": {
         "name": "Lichter am Ende einschalten"
       },

@@ -266,6 +266,7 @@ class WakeupHelperCard extends HTMLElement {
     const active = primary.state === "on";
     const title =
       this._config.name ||
+      primary.attributes.wakeup_helper_name ||
       primary.attributes.friendly_name ||
       (entities.type === "wakeup" ? "Wake-up light" : "Nap mode");
     const icon =

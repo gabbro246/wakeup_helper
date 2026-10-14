@@ -13,8 +13,9 @@ can create separate routines for different rooms or people.
 
 Starting a nap turns off the selected lights and closes the selected covers. At
 the end, it can open the covers and turn on a separately selected set of lights.
-Both end actions can be enabled or disabled from the routine's device page. You
-can also stop the nap early.
+Each start and end action can be enabled or disabled from the routine's device
+page. Switches only appear when a matching target is selected. You can also stop
+the nap early.
 
 ### Wake-up light
 
@@ -60,8 +61,9 @@ time, duration, or brightness. To change which room devices a routine uses—or
 to add or remove the morning script—open **Settings → Devices & services →
 Wakeup Helper**, select the routine, and choose **Configure**.
 
-The Configure screen accepts individual lights and covers, whole areas, or
-both. Nap routines also let you select a separate set of lights for the end.
+Each optional target on the Configure screen accepts individual entities,
+devices, areas, or any combination of them. Nap routines also let you select a
+separate light target for the end.
 
 ## Add it to your dashboard
 

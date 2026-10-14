@@ -26,6 +26,8 @@ CONF_FADE_DURATION: Final = "fade_duration"
 CONF_BRIGHTNESS: Final = "brightness"
 CONF_TURN_ON_LIGHTS_AT_END: Final = "turn_on_lights_at_end"
 CONF_OPEN_COVERS_AT_END: Final = "open_covers_at_end"
+CONF_TURN_OFF_LIGHTS_AT_START: Final = "turn_off_lights_at_start"
+CONF_CLOSE_COVERS_AT_START: Final = "close_covers_at_start"
 
 DEFAULT_NAP_DURATION: Final = 30
 DEFAULT_ALARM_TIME: Final = "07:00:00"
@@ -33,10 +35,12 @@ DEFAULT_FADE_DURATION: Final = 25
 DEFAULT_BRIGHTNESS: Final = 100
 DEFAULT_TURN_ON_LIGHTS_AT_END: Final = False
 DEFAULT_OPEN_COVERS_AT_END: Final = True
+DEFAULT_TURN_OFF_LIGHTS_AT_START: Final = True
+DEFAULT_CLOSE_COVERS_AT_START: Final = True
 
 EVENT_WAKEUP: Final = "wakeup_helper_wakeup"
 
-CARD_URL: Final = "/wakeup_helper/wakeup-helper-card.js?v=0.3.14"
+CARD_URL: Final = "/wakeup_helper/wakeup-helper-card.js?v=0.4.1"
 STATIC_URL: Final = "/wakeup_helper"
 
 STORAGE_VERSION: Final = 1
