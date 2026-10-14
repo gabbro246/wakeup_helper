@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.0
+- Added whole-room selection alongside individual lights and covers.
+- Added separate nap-end lights and switches for opening covers or turning on lights.
+- Removed the divider between each routine toggle and its time control.
+
 ## 0.3.15
 - Replaced the routine type dropdown with separate Nap mode and Wake-up light choices.
 

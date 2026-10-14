@@ -8,6 +8,8 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.helpers.selector import (
+    AreaSelector,
+    AreaSelectorConfig,
     EntitySelector,
     EntitySelectorConfig,
     NumberSelector,
@@ -21,9 +23,13 @@ from .const import (
     CONF_ALARM_SCRIPT,
     CONF_ALARM_TIME,
     CONF_BRIGHTNESS,
+    CONF_COVER_AREAS,
     CONF_COVERS,
     CONF_DURATION,
+    CONF_END_LIGHT_AREAS,
+    CONF_END_LIGHTS,
     CONF_FADE_DURATION,
+    CONF_LIGHT_AREAS,
     CONF_LIGHTS,
     CONF_NAME,
     CONF_ROUTINE_TYPE,
@@ -43,6 +49,10 @@ def _lights_selector() -> EntitySelector:
 
 def _covers_selector() -> EntitySelector:
     return EntitySelector(EntitySelectorConfig(domain="cover", multiple=True))
+
+
+def _areas_selector() -> AreaSelector:
+    return AreaSelector(AreaSelectorConfig(multiple=True))
 
 
 def _script_selector() -> EntitySelector:
@@ -204,15 +214,35 @@ class WakeupHelperOptionsFlow(config_entries.OptionsFlow):
                         CONF_LIGHTS, default=current.get(CONF_LIGHTS, [])
                     ): _lights_selector(),
                     vol.Required(
+                        CONF_LIGHT_AREAS,
+                        default=current.get(CONF_LIGHT_AREAS, []),
+                    ): _areas_selector(),
+                    vol.Required(
                         CONF_COVERS, default=current.get(CONF_COVERS, [])
                     ): _covers_selector(),
+                    vol.Required(
+                        CONF_COVER_AREAS,
+                        default=current.get(CONF_COVER_AREAS, []),
+                    ): _areas_selector(),
+                    vol.Required(
+                        CONF_END_LIGHTS,
+                        default=current.get(CONF_END_LIGHTS, []),
+                    ): _lights_selector(),
+                    vol.Required(
+                        CONF_END_LIGHT_AREAS,
+                        default=current.get(CONF_END_LIGHT_AREAS, []),
+                    ): _areas_selector(),
                 }
             )
         else:
             fields: dict[Any, Any] = {
                 vol.Required(
                     CONF_LIGHTS, default=current.get(CONF_LIGHTS, [])
-                ): _lights_selector()
+                ): _lights_selector(),
+                vol.Required(
+                    CONF_LIGHT_AREAS,
+                    default=current.get(CONF_LIGHT_AREAS, []),
+                ): _areas_selector(),
             }
             if script := current.get(CONF_ALARM_SCRIPT):
                 fields[vol.Optional(CONF_ALARM_SCRIPT, default=script)] = (

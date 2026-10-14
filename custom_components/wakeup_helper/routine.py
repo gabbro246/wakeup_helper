@@ -22,14 +22,22 @@ from .const import (
     CONF_ALARM_SCRIPT,
     CONF_ALARM_TIME,
     CONF_BRIGHTNESS,
+    CONF_COVER_AREAS,
     CONF_COVERS,
     CONF_DURATION,
+    CONF_END_LIGHT_AREAS,
+    CONF_END_LIGHTS,
     CONF_FADE_DURATION,
+    CONF_LIGHT_AREAS,
     CONF_LIGHTS,
+    CONF_OPEN_COVERS_AT_END,
+    CONF_TURN_ON_LIGHTS_AT_END,
     DEFAULT_ALARM_TIME,
     DEFAULT_BRIGHTNESS,
     DEFAULT_FADE_DURATION,
     DEFAULT_NAP_DURATION,
+    DEFAULT_OPEN_COVERS_AT_END,
+    DEFAULT_TURN_ON_LIGHTS_AT_END,
     DOMAIN,
     EVENT_WAKEUP,
     STORAGE_VERSION,
@@ -75,6 +83,11 @@ class RoutineController:
         """Return configured light entity IDs."""
         return list(self.config.get(CONF_LIGHTS, []))
 
+    @property
+    def light_areas(self) -> list[str]:
+        """Return configured areas whose lights should be targeted."""
+        return list(self.config.get(CONF_LIGHT_AREAS, []))
+
     async def async_initialize(self) -> None:
         """Load persistent state."""
         self._stored = await self._store.async_load() or {}
@@ -115,8 +128,8 @@ class RoutineController:
         """Remove an entity ID from the dashboard card map."""
         if self.entity_ids.pop(key, None) is not None:
             self._notify()
-    @callback
 
+    @callback
     def _save_later(self) -> None:
         """Persist state after closely grouped changes settle."""
         self._store.async_delay_save(self._storage_data, 1)
@@ -158,16 +171,22 @@ class RoutineController:
         service: str,
         entity_ids: list[str],
         data: dict[str, Any] | None = None,
+        area_ids: list[str] | None = None,
     ) -> None:
         """Call a Home Assistant service for configured targets."""
-        if not entity_ids:
+        if not entity_ids and not area_ids:
             return
+        target: dict[str, list[str]] = {}
+        if entity_ids:
+            target["entity_id"] = entity_ids
+        if area_ids:
+            target["area_id"] = area_ids
         try:
             await self.hass.services.async_call(
                 domain,
                 service,
                 data or {},
-                target={"entity_id": entity_ids},
+                target=target,
                 blocking=True,
             )
         except HomeAssistantError as err:
@@ -186,11 +205,28 @@ class NapController(RoutineController):
     duration: int
     active: bool
     end_at: datetime | None
+    turn_on_lights_at_end: bool
+    open_covers_at_end: bool
 
     @property
     def covers(self) -> list[str]:
         """Return configured cover entity IDs."""
         return list(self.config.get(CONF_COVERS, []))
+
+    @property
+    def cover_areas(self) -> list[str]:
+        """Return configured areas whose covers should be targeted."""
+        return list(self.config.get(CONF_COVER_AREAS, []))
+
+    @property
+    def end_lights(self) -> list[str]:
+        """Return light entity IDs to turn on when the nap ends."""
+        return list(self.config.get(CONF_END_LIGHTS, []))
+
+    @property
+    def end_light_areas(self) -> list[str]:
+        """Return areas whose lights should turn on when the nap ends."""
+        return list(self.config.get(CONF_END_LIGHT_AREAS, []))
 
     @property
     def remaining_seconds(self) -> int | None:
@@ -209,6 +245,18 @@ class NapController(RoutineController):
             90,
         )
         self.active = bool(self._stored.get("active", False))
+        self.turn_on_lights_at_end = bool(
+            self._stored.get(
+                CONF_TURN_ON_LIGHTS_AT_END,
+                DEFAULT_TURN_ON_LIGHTS_AT_END,
+            )
+        )
+        self.open_covers_at_end = bool(
+            self._stored.get(
+                CONF_OPEN_COVERS_AT_END,
+                DEFAULT_OPEN_COVERS_AT_END,
+            )
+        )
         self.end_at = None
         if stored_end := self._stored.get("end_at"):
             self.end_at = dt_util.parse_datetime(stored_end)
@@ -227,6 +275,8 @@ class NapController(RoutineController):
     def _storage_data(self) -> dict[str, Any]:
         return {
             CONF_DURATION: self.duration,
+            CONF_TURN_ON_LIGHTS_AT_END: self.turn_on_lights_at_end,
+            CONF_OPEN_COVERS_AT_END: self.open_covers_at_end,
             "active": self.active,
             "end_at": self.end_at.isoformat() if self.end_at else None,
         }
@@ -234,6 +284,22 @@ class NapController(RoutineController):
     async def async_set_duration(self, value: float) -> None:
         """Set the duration for future naps."""
         self.duration = _bounded_int(value, DEFAULT_NAP_DURATION, 5, 180)
+        self._save_later()
+        self._notify()
+
+    async def async_set_turn_on_lights_at_end(self, enabled: bool) -> None:
+        """Choose whether configured end lights turn on after a nap."""
+        if self.turn_on_lights_at_end == enabled:
+            return
+        self.turn_on_lights_at_end = enabled
+        self._save_later()
+        self._notify()
+
+    async def async_set_open_covers_at_end(self, enabled: bool) -> None:
+        """Choose whether configured covers open after a nap."""
+        if self.open_covers_at_end == enabled:
+            return
+        self.open_covers_at_end = enabled
         self._save_later()
         self._notify()
 
@@ -247,8 +313,12 @@ class NapController(RoutineController):
         self._start_clock()
         self._save_later()
         self._notify()
-        await self._async_call_target("cover", "close_cover", self.covers)
-        await self._async_call_target("light", "turn_off", self.lights)
+        await self._async_call_target(
+            "cover", "close_cover", self.covers, area_ids=self.cover_areas
+        )
+        await self._async_call_target(
+            "light", "turn_off", self.lights, area_ids=self.light_areas
+        )
 
     async def async_turn_off(self) -> None:
         """End a nap early or after its duration."""
@@ -260,7 +330,17 @@ class NapController(RoutineController):
         self.end_at = None
         self._save_later()
         self._notify()
-        await self._async_call_target("cover", "open_cover", self.covers)
+        if self.open_covers_at_end:
+            await self._async_call_target(
+                "cover", "open_cover", self.covers, area_ids=self.cover_areas
+            )
+        if self.turn_on_lights_at_end:
+            await self._async_call_target(
+                "light",
+                "turn_on",
+                self.end_lights,
+                area_ids=self.end_light_areas,
+            )
 
     @callback
     def _schedule_end(self) -> None:
@@ -413,6 +493,7 @@ class WakeupController(RoutineController):
             "turn_on",
             self.lights,
             {"brightness_pct": brightness, "transition": transition},
+            area_ids=self.light_areas,
         )
         self.status = "waking"
         self._notify()
@@ -428,6 +509,7 @@ class WakeupController(RoutineController):
             "turn_on",
             self.lights,
             {"brightness_pct": self.brightness, "transition": 30},
+            area_ids=self.light_areas,
         )
         self.status = "alarm"
         self._notify()
@@ -437,6 +519,7 @@ class WakeupController(RoutineController):
                 "config_entry_id": self.entry.entry_id,
                 "name": self.entry.title,
                 "lights": self.lights,
+                "light_areas": self.light_areas,
             },
         )
         if script := self.config.get(CONF_ALARM_SCRIPT):

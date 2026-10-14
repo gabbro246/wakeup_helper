@@ -46,19 +46,35 @@
     "step": {
       "init": {
         "title": "Edit routine targets",
-        "description": "Change which room entities this routine controls.",
+        "description": "Choose individual entities, whole areas, or both.",
         "data": {
           "lights": "Lights",
+          "light_areas": "Areas for lights",
           "covers": "Covers",
+          "cover_areas": "Areas for covers",
+          "end_lights": "Lights to turn on when a nap ends",
+          "end_light_areas": "Areas whose lights turn on when a nap ends",
           "alarm_script": "Script to run at alarm time"
         },
         "data_description": {
+          "light_areas": "The routine affects every light assigned to these areas.",
+          "cover_areas": "The routine affects every cover assigned to these areas.",
+          "end_lights": "These are separate from the lights that turn off when the nap starts.",
+          "end_light_areas": "Every light in these areas can turn on when the nap ends.",
           "alarm_script": "Optional. Clear this field to stop running a script."
         }
       }
     }
   },
   "entity": {
+    "switch": {
+      "turn_on_lights_at_end": {
+        "name": "Turn on lights when nap ends"
+      },
+      "open_covers_at_end": {
+        "name": "Open covers when nap ends"
+      }
+    },
     "number": {
       "nap_duration": {
         "name": "Duration"

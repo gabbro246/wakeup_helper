@@ -11,8 +11,10 @@ can create separate routines for different rooms or people.
 
 ### Nap mode
 
-Starting a nap turns off the selected lights and closes the selected covers.
-When the timer ends, the covers open again. You can also stop the nap early.
+Starting a nap turns off the selected lights and closes the selected covers. At
+the end, it can open the covers and turn on a separately selected set of lights.
+Both end actions can be enabled or disabled from the routine's device page. You
+can also stop the nap early.
 
 ### Wake-up light
 
@@ -46,7 +48,8 @@ When adding Wakeup Helper, choose **Nap mode** or **Wake-up light**. Give the
 routine a clear name, such as “Bedroom nap” or “Mia’s wake-up light.” Add more
 routines as needed.
 
-For a nap, select the lights and covers to control, then choose the nap length.
+For a nap, select the lights to turn off and covers to close, then choose the
+nap length.
 
 For a wake-up light, select the lights to use, set the alarm time, choose how
 long they should brighten for, and set the final brightness. Optionally choose a
@@ -56,6 +59,9 @@ After setup, open the routine's device page whenever you want to adjust the
 time, duration, or brightness. To change which room devices a routine uses—or
 to add or remove the morning script—open **Settings → Devices & services →
 Wakeup Helper**, select the routine, and choose **Configure**.
+
+The Configure screen accepts individual lights and covers, whole areas, or
+both. Nap routines also let you select a separate set of lights for the end.
 
 ## Add it to your dashboard
 
