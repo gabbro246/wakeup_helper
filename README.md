@@ -22,7 +22,8 @@ the nap early.
 Set a daily alarm and the selected lights gradually brighten before the alarm
 time, reaching the brightness you choose. At alarm time, it can open selected
 covers and run a Home Assistant script, such as one that starts music or makes
-an announcement. The cover action can be enabled or disabled from the routine's
+an announcement. After the alarm finishes, it can turn the selected lights off
+again. The light and cover actions can be enabled or disabled from the routine's
 device page.
 
 Both routines can be controlled from Home Assistant and have a built-in

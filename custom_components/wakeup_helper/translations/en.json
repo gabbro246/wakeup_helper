@@ -104,6 +104,9 @@
       },
       "open_covers_at_alarm": {
         "name": "Open covers at alarm time"
+      },
+      "turn_off_lights_after_alarm": {
+        "name": "Turn off lights after alarm"
       }
     },
     "number": {

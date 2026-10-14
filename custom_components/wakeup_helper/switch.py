@@ -58,6 +58,14 @@ async def async_setup_entry(
         async_add_entities(entities)
     else:
         entities = [WakeupSwitch(entry, controller)]
+        if controller.light_target:
+            entities.append(WakeupTurnOffLightsSwitch(entry, controller))
+        else:
+            registry = er.async_get(hass)
+            if entity_id := registry.async_get_entity_id(
+                "switch", DOMAIN, f"{entry.entry_id}_turn_off_lights_after_alarm"
+            ):
+                registry.async_remove(entity_id)
         if controller.cover_target:
             entities.append(WakeupOpenCoversSwitch(entry, controller))
         else:
@@ -159,6 +167,30 @@ class WakeupOpenCoversSwitch(WakeupHelperEntity, SwitchEntity):
 
     async def async_turn_off(self, **kwargs: object) -> None:
         await self.controller.async_set_open_covers_at_alarm(False)
+
+
+class WakeupTurnOffLightsSwitch(WakeupHelperEntity, SwitchEntity):
+    """Choose whether lights turn off after the wake-up alarm."""
+
+    _attr_translation_key = "turn_off_lights_after_alarm"
+    _attr_icon = "mdi:lightbulb-off-outline"
+    _attr_entity_category = EntityCategory.CONFIG
+
+    def __init__(
+        self, entry: WakeupHelperConfigEntry, controller: WakeupController
+    ) -> None:
+        super().__init__(entry, controller, "turn_off_lights_after_alarm")
+        self.controller = controller
+
+    @property
+    def is_on(self) -> bool:
+        return self.controller.turn_off_lights_after_alarm
+
+    async def async_turn_on(self, **kwargs: object) -> None:
+        await self.controller.async_set_turn_off_lights_after_alarm(True)
+
+    async def async_turn_off(self, **kwargs: object) -> None:
+        await self.controller.async_set_turn_off_lights_after_alarm(False)
 
 
 class NapTurnOffLightsSwitch(WakeupHelperEntity, SwitchEntity):

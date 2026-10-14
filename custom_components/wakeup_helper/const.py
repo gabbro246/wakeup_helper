@@ -27,6 +27,7 @@ CONF_BRIGHTNESS: Final = "brightness"
 CONF_TURN_ON_LIGHTS_AT_END: Final = "turn_on_lights_at_end"
 CONF_OPEN_COVERS_AT_END: Final = "open_covers_at_end"
 CONF_OPEN_COVERS_AT_ALARM: Final = "open_covers_at_alarm"
+CONF_TURN_OFF_LIGHTS_AFTER_ALARM: Final = "turn_off_lights_after_alarm"
 CONF_TURN_OFF_LIGHTS_AT_START: Final = "turn_off_lights_at_start"
 CONF_CLOSE_COVERS_AT_START: Final = "close_covers_at_start"
 
@@ -37,12 +38,13 @@ DEFAULT_BRIGHTNESS: Final = 100
 DEFAULT_TURN_ON_LIGHTS_AT_END: Final = False
 DEFAULT_OPEN_COVERS_AT_END: Final = True
 DEFAULT_OPEN_COVERS_AT_ALARM: Final = True
+DEFAULT_TURN_OFF_LIGHTS_AFTER_ALARM: Final = False
 DEFAULT_TURN_OFF_LIGHTS_AT_START: Final = True
 DEFAULT_CLOSE_COVERS_AT_START: Final = True
 
 EVENT_WAKEUP: Final = "wakeup_helper_wakeup"
 
-CARD_URL: Final = "/wakeup_helper/wakeup-helper-card.js?v=0.4.3"
+CARD_URL: Final = "/wakeup_helper/wakeup-helper-card.js?v=0.4.4"
 STATIC_URL: Final = "/wakeup_helper"
 
 STORAGE_VERSION: Final = 1

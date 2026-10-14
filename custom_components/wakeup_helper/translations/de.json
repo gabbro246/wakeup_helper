@@ -104,6 +104,9 @@
       },
       "open_covers_at_alarm": {
         "name": "Rollos zur Weckzeit öffnen"
+      },
+      "turn_off_lights_after_alarm": {
+        "name": "Lichter nach dem Wecken ausschalten"
       }
     },
     "number": {

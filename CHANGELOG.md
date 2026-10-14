@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.4.4
+- Added an option to turn off wake-up lights after the alarm finishes.
+
 ## 0.4.3
 - Added the option to open selected covers when a wake-up alarm starts.
 - Added a device switch for turning the cover action on or off.

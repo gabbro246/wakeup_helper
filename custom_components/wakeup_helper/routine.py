@@ -33,6 +33,7 @@ from .const import (
     CONF_LIGHTS,
     CONF_OPEN_COVERS_AT_ALARM,
     CONF_OPEN_COVERS_AT_END,
+    CONF_TURN_OFF_LIGHTS_AFTER_ALARM,
     CONF_TURN_OFF_LIGHTS_AT_START,
     CONF_TURN_ON_LIGHTS_AT_END,
     DEFAULT_ALARM_TIME,
@@ -42,6 +43,7 @@ from .const import (
     DEFAULT_NAP_DURATION,
     DEFAULT_OPEN_COVERS_AT_ALARM,
     DEFAULT_OPEN_COVERS_AT_END,
+    DEFAULT_TURN_OFF_LIGHTS_AFTER_ALARM,
     DEFAULT_TURN_OFF_LIGHTS_AT_START,
     DEFAULT_TURN_ON_LIGHTS_AT_END,
     DOMAIN,
@@ -458,6 +460,7 @@ class WakeupController(RoutineController):
     fade_duration: int
     brightness: int
     open_covers_at_alarm: bool
+    turn_off_lights_after_alarm: bool
     status: str
     next_alarm: datetime | None
 
@@ -497,6 +500,12 @@ class WakeupController(RoutineController):
                 DEFAULT_OPEN_COVERS_AT_ALARM,
             )
         )
+        self.turn_off_lights_after_alarm = bool(
+            self._stored.get(
+                CONF_TURN_OFF_LIGHTS_AFTER_ALARM,
+                DEFAULT_TURN_OFF_LIGHTS_AFTER_ALARM,
+            )
+        )
         self.enabled = bool(self._stored.get("enabled", False))
         self.status = "off"
         self.next_alarm = None
@@ -508,6 +517,7 @@ class WakeupController(RoutineController):
             CONF_FADE_DURATION: self.fade_duration,
             CONF_BRIGHTNESS: self.brightness,
             CONF_OPEN_COVERS_AT_ALARM: self.open_covers_at_alarm,
+            CONF_TURN_OFF_LIGHTS_AFTER_ALARM: self.turn_off_lights_after_alarm,
             "enabled": self.enabled,
         }
 
@@ -542,6 +552,14 @@ class WakeupController(RoutineController):
         if self.open_covers_at_alarm == enabled:
             return
         self.open_covers_at_alarm = enabled
+        self._save_later()
+        self._notify()
+
+    async def async_set_turn_off_lights_after_alarm(self, enabled: bool) -> None:
+        """Choose whether configured lights turn off after the alarm."""
+        if self.turn_off_lights_after_alarm == enabled:
+            return
+        self.turn_off_lights_after_alarm = enabled
         self._save_later()
         self._notify()
 
@@ -651,4 +669,12 @@ class WakeupController(RoutineController):
     @callback
     def _handle_alarm_finished(self, _now: datetime) -> None:
         self._cancel_schedule = None
+        self.hass.async_create_task(self._async_alarm_finished())
+
+    async def _async_alarm_finished(self) -> None:
+        """Finish the alarm and optionally turn off its lights."""
+        if self.turn_off_lights_after_alarm:
+            await self._async_call_target(
+                "light", "turn_off", self.light_target
+            )
         self._schedule_next()
