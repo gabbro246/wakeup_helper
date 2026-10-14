@@ -23,8 +23,9 @@ async def async_setup_entry(
 ) -> None:
     """Set up a routine switch."""
     controller = entry.runtime_data
+    entities: list[SwitchEntity]
     if entry.data["routine_type"] == ROUTINE_NAP:
-        entities: list[SwitchEntity] = [NapSwitch(entry, controller)]
+        entities = [NapSwitch(entry, controller)]
         active_action_keys: set[str] = set()
         if controller.light_target:
             entities.append(NapTurnOffLightsSwitch(entry, controller))
@@ -56,7 +57,16 @@ async def async_setup_entry(
                 registry.async_remove(entity_id)
         async_add_entities(entities)
     else:
-        async_add_entities([WakeupSwitch(entry, controller)])
+        entities = [WakeupSwitch(entry, controller)]
+        if controller.cover_target:
+            entities.append(WakeupOpenCoversSwitch(entry, controller))
+        else:
+            registry = er.async_get(hass)
+            if entity_id := registry.async_get_entity_id(
+                "switch", DOMAIN, f"{entry.entry_id}_open_covers_at_alarm"
+            ):
+                registry.async_remove(entity_id)
+        async_add_entities(entities)
 
 
 class NapSwitch(WakeupHelperEntity, SwitchEntity):
@@ -125,6 +135,30 @@ class WakeupSwitch(WakeupHelperEntity, SwitchEntity):
 
     async def async_turn_off(self, **kwargs: object) -> None:
         await self.controller.async_set_enabled(False)
+
+
+class WakeupOpenCoversSwitch(WakeupHelperEntity, SwitchEntity):
+    """Choose whether covers open at wake-up alarm time."""
+
+    _attr_translation_key = "open_covers_at_alarm"
+    _attr_icon = "mdi:window-shutter-open"
+    _attr_entity_category = EntityCategory.CONFIG
+
+    def __init__(
+        self, entry: WakeupHelperConfigEntry, controller: WakeupController
+    ) -> None:
+        super().__init__(entry, controller, "open_covers_at_alarm")
+        self.controller = controller
+
+    @property
+    def is_on(self) -> bool:
+        return self.controller.open_covers_at_alarm
+
+    async def async_turn_on(self, **kwargs: object) -> None:
+        await self.controller.async_set_open_covers_at_alarm(True)
+
+    async def async_turn_off(self, **kwargs: object) -> None:
+        await self.controller.async_set_open_covers_at_alarm(False)
 
 
 class NapTurnOffLightsSwitch(WakeupHelperEntity, SwitchEntity):

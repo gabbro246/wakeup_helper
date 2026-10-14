@@ -31,6 +31,7 @@ from .const import (
     CONF_FADE_DURATION,
     CONF_LIGHT_AREAS,
     CONF_LIGHTS,
+    CONF_OPEN_COVERS_AT_ALARM,
     CONF_OPEN_COVERS_AT_END,
     CONF_TURN_OFF_LIGHTS_AT_START,
     CONF_TURN_ON_LIGHTS_AT_END,
@@ -39,6 +40,7 @@ from .const import (
     DEFAULT_CLOSE_COVERS_AT_START,
     DEFAULT_FADE_DURATION,
     DEFAULT_NAP_DURATION,
+    DEFAULT_OPEN_COVERS_AT_ALARM,
     DEFAULT_OPEN_COVERS_AT_END,
     DEFAULT_TURN_OFF_LIGHTS_AT_START,
     DEFAULT_TURN_ON_LIGHTS_AT_END,
@@ -132,6 +134,29 @@ class RoutineController:
     def light_devices(self) -> list[str]:
         """Return configured devices whose lights should be targeted."""
         return self.light_target.get("device_id", [])
+
+    @property
+    def cover_target(self) -> dict[str, list[str]]:
+        """Return the configured cover service target."""
+        return _coerce_target(
+            self.config.get(CONF_COVERS),
+            self.config.get(CONF_COVER_AREAS),
+        )
+
+    @property
+    def covers(self) -> list[str]:
+        """Return configured cover entity IDs."""
+        return self.cover_target.get("entity_id", [])
+
+    @property
+    def cover_areas(self) -> list[str]:
+        """Return configured areas whose covers should be targeted."""
+        return self.cover_target.get("area_id", [])
+
+    @property
+    def cover_devices(self) -> list[str]:
+        """Return configured devices whose covers should be targeted."""
+        return self.cover_target.get("device_id", [])
 
     async def async_initialize(self) -> None:
         """Load persistent state."""
@@ -248,24 +273,6 @@ class NapController(RoutineController):
     close_covers_at_start: bool
     turn_on_lights_at_end: bool
     open_covers_at_end: bool
-
-    @property
-    def cover_target(self) -> dict[str, list[str]]:
-        """Return the configured cover service target."""
-        return _coerce_target(
-            self.config.get(CONF_COVERS),
-            self.config.get(CONF_COVER_AREAS),
-        )
-
-    @property
-    def covers(self) -> list[str]:
-        """Return configured cover entity IDs."""
-        return self.cover_target.get("entity_id", [])
-
-    @property
-    def cover_areas(self) -> list[str]:
-        """Return configured areas whose covers should be targeted."""
-        return self.cover_target.get("area_id", [])
 
     @property
     def end_light_target(self) -> dict[str, list[str]]:
@@ -450,6 +457,7 @@ class WakeupController(RoutineController):
     alarm_time: time
     fade_duration: int
     brightness: int
+    open_covers_at_alarm: bool
     status: str
     next_alarm: datetime | None
 
@@ -483,6 +491,12 @@ class WakeupController(RoutineController):
             1,
             100,
         )
+        self.open_covers_at_alarm = bool(
+            self._stored.get(
+                CONF_OPEN_COVERS_AT_ALARM,
+                DEFAULT_OPEN_COVERS_AT_ALARM,
+            )
+        )
         self.enabled = bool(self._stored.get("enabled", False))
         self.status = "off"
         self.next_alarm = None
@@ -493,6 +507,7 @@ class WakeupController(RoutineController):
             CONF_ALARM_TIME: self.alarm_time.isoformat(),
             CONF_FADE_DURATION: self.fade_duration,
             CONF_BRIGHTNESS: self.brightness,
+            CONF_OPEN_COVERS_AT_ALARM: self.open_covers_at_alarm,
             "enabled": self.enabled,
         }
 
@@ -519,6 +534,14 @@ class WakeupController(RoutineController):
     async def async_set_brightness(self, value: float) -> None:
         """Set the brightness reached at alarm time."""
         self.brightness = _bounded_int(value, DEFAULT_BRIGHTNESS, 1, 100)
+        self._save_later()
+        self._notify()
+
+    async def async_set_open_covers_at_alarm(self, enabled: bool) -> None:
+        """Choose whether configured covers open at alarm time."""
+        if self.open_covers_at_alarm == enabled:
+            return
+        self.open_covers_at_alarm = enabled
         self._save_later()
         self._notify()
 
@@ -595,6 +618,10 @@ class WakeupController(RoutineController):
             self.light_target,
             {"brightness_pct": self.brightness, "transition": 30},
         )
+        if self.open_covers_at_alarm:
+            await self._async_call_target(
+                "cover", "open_cover", self.cover_target
+            )
         self.status = "alarm"
         self._notify()
         self.hass.bus.async_fire(
@@ -605,6 +632,9 @@ class WakeupController(RoutineController):
                 "lights": self.lights,
                 "light_areas": self.light_areas,
                 "light_devices": self.light_devices,
+                "covers": self.covers,
+                "cover_areas": self.cover_areas,
+                "cover_devices": self.cover_devices,
             },
         )
         if script := self.config.get(CONF_ALARM_SCRIPT):

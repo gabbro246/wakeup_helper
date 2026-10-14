@@ -20,9 +20,10 @@ the nap early.
 ### Wake-up light
 
 Set a daily alarm and the selected lights gradually brighten before the alarm
-time, reaching the brightness you choose. You can also run a Home Assistant
-script at alarm time, such as one that starts music, makes an announcement, or
-opens covers.
+time, reaching the brightness you choose. At alarm time, it can open selected
+covers and run a Home Assistant script, such as one that starts music or makes
+an announcement. The cover action can be enabled or disabled from the routine's
+device page.
 
 Both routines can be controlled from Home Assistant and have a built-in
 dashboard card that shows what is happening and how long is left. Active naps
@@ -53,8 +54,9 @@ For a nap, select the lights to turn off and covers to close, then choose the
 nap length.
 
 For a wake-up light, select the lights to use, set the alarm time, choose how
-long they should brighten for, and set the final brightness. Optionally choose a
-Home Assistant script to run at alarm time.
+long they should brighten for, and set the final brightness. You can also select
+covers to open and optionally choose a Home Assistant script to run at alarm
+time.
 
 After setup, open the routine's device page whenever you want to adjust the
 time, duration, or brightness. To change which room devices a routine uses—or
@@ -63,7 +65,8 @@ Wakeup Helper**, select the routine, and choose **Configure**.
 
 Each optional target on the Configure screen accepts individual lights or
 covers, whole areas, or both. Nap routines also let you select separate lights
-or areas for the end.
+or areas for the end. Wake-up routines can open their selected covers when the
+alarm time is reached.
 
 ## Add it to your dashboard
 

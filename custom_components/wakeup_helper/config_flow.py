@@ -137,6 +137,9 @@ def _wakeup_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
         _optional_target(
             CONF_LIGHTS, values, CONF_LIGHT_AREAS
         ): _target_selector("light"),
+        _optional_target(
+            CONF_COVERS, values, CONF_COVER_AREAS
+        ): _target_selector("cover"),
         vol.Required(
             CONF_ALARM_TIME,
             default=values.get(CONF_ALARM_TIME, DEFAULT_ALARM_TIME),
@@ -282,12 +285,16 @@ class WakeupHelperOptionsFlow(config_entries.OptionsFlow):
 
         if user_input is not None:
             user_input.setdefault(CONF_LIGHTS, {})
+            user_input.setdefault(CONF_COVERS, {})
             return self.async_create_entry(title="", data=user_input)
 
         fields: dict[Any, Any] = {
             _optional_target(
                 CONF_LIGHTS, current, CONF_LIGHT_AREAS
             ): _target_selector("light"),
+            _optional_target(
+                CONF_COVERS, current, CONF_COVER_AREAS
+            ): _target_selector("cover"),
         }
         if script := current.get(CONF_ALARM_SCRIPT):
             fields[vol.Optional(CONF_ALARM_SCRIPT, default=script)] = (

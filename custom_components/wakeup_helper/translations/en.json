@@ -32,6 +32,7 @@
         "data": {
           "name": "Name",
           "lights": "Lights or areas to brighten",
+          "covers": "Covers or areas to open",
           "alarm_time": "Initial alarm time",
           "fade_duration": "Initial fade-in duration",
           "brightness": "Initial end brightness",
@@ -40,6 +41,7 @@
         "data_description": {
           "name": "Use a name that identifies the room or person.",
           "lights": "These gradually brighten before the alarm time.",
+          "covers": "These open when the alarm time is reached.",
           "alarm_time": "The time the lights reach their final brightness.",
           "fade_duration": "How many minutes before the alarm the lights begin to brighten.",
           "brightness": "The brightness reached at the alarm time.",
@@ -66,13 +68,15 @@
       },
       "wakeup": {
         "title": "Edit wake-up targets",
-        "description": "Choose which lights brighten and what runs at alarm time.",
+        "description": "Choose which lights brighten and what happens at alarm time.",
         "data": {
           "lights": "Lights or areas to brighten",
+          "covers": "Covers or areas to open",
           "alarm_script": "Script to run at alarm time"
         },
         "data_description": {
           "lights": "These gradually brighten before the alarm time.",
+          "covers": "These open when the alarm time is reached.",
           "alarm_script": "Optional. Clear this field to stop running a script."
         }
       }
@@ -97,6 +101,9 @@
       },
       "open_covers_at_end": {
         "name": "Open covers when nap ends"
+      },
+      "open_covers_at_alarm": {
+        "name": "Open covers at alarm time"
       }
     },
     "number": {

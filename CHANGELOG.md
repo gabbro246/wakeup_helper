@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.3
+- Added the option to open selected covers when a wake-up alarm starts.
+- Added a device switch for turning the cover action on or off.
+
 ## 0.4.2
 - Clarified what to select for each nap and wake-up action.
 - Added concise guidance for alarm time, fade duration, brightness, and scripts.

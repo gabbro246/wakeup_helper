@@ -32,6 +32,7 @@
         "data": {
           "name": "Name",
           "lights": "Lichter oder Bereiche zum Aufblenden",
+          "covers": "Rollos oder Bereiche zum Öffnen",
           "alarm_time": "Anfängliche Weckzeit",
           "fade_duration": "Anfängliche Aufblenddauer",
           "brightness": "Anfängliche Endhelligkeit",
@@ -40,6 +41,7 @@
         "data_description": {
           "name": "Verwende einen Namen, der das Zimmer oder die Person beschreibt.",
           "lights": "Diese werden vor der Weckzeit allmählich heller.",
+          "covers": "Diese werden zur Weckzeit geöffnet.",
           "alarm_time": "Zu dieser Zeit erreichen die Lichter ihre Endhelligkeit.",
           "fade_duration": "So viele Minuten vor der Weckzeit werden die Lichter heller.",
           "brightness": "Die Helligkeit, die zur Weckzeit erreicht wird.",
@@ -66,13 +68,15 @@
       },
       "wakeup": {
         "title": "Ziele des Aufwachlichts bearbeiten",
-        "description": "Wähle, welche Lichter heller werden und was zur Weckzeit ausgeführt wird.",
+        "description": "Wähle, welche Lichter heller werden und was zur Weckzeit geschieht.",
         "data": {
           "lights": "Lichter oder Bereiche zum Aufblenden",
+          "covers": "Rollos oder Bereiche zum Öffnen",
           "alarm_script": "Skript zur Weckzeit"
         },
         "data_description": {
           "lights": "Diese werden vor der Weckzeit allmählich heller.",
+          "covers": "Diese werden zur Weckzeit geöffnet.",
           "alarm_script": "Optional. Leere dieses Feld, um kein Skript mehr auszuführen."
         }
       }
@@ -97,6 +101,9 @@
       },
       "open_covers_at_end": {
         "name": "Rollos am Ende öffnen"
+      },
+      "open_covers_at_alarm": {
+        "name": "Rollos zur Weckzeit öffnen"
       }
     },
     "number": {
