@@ -240,46 +240,62 @@ class WakeupHelperOptionsFlow(config_entries.OptionsFlow):
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
-        """Show editable routine targets."""
+        """Open the form for this routine type."""
         routine_type = self._entry.data[CONF_ROUTINE_TYPE]
+        if routine_type == ROUTINE_NAP:
+            return await self.async_step_nap(user_input)
+        return await self.async_step_wakeup(user_input)
+
+    async def async_step_nap(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        """Show editable nap targets."""
         current = {**self._entry.data, **self._entry.options}
 
         if user_input is not None:
-            target_keys = [CONF_LIGHTS]
-            if routine_type == ROUTINE_NAP:
-                target_keys.extend([CONF_COVERS, CONF_END_LIGHTS])
-            for key in target_keys:
+            for key in (CONF_LIGHTS, CONF_COVERS, CONF_END_LIGHTS):
                 user_input.setdefault(key, {})
             return self.async_create_entry(title="", data=user_input)
 
-        if routine_type == ROUTINE_NAP:
-            schema = vol.Schema(
-                {
-                    _optional_target(
-                        CONF_LIGHTS, current, CONF_LIGHT_AREAS
-                    ): _target_selector("light"),
-                    _optional_target(
-                        CONF_COVERS, current, CONF_COVER_AREAS
-                    ): _target_selector("cover"),
-                    _optional_target(
-                        CONF_END_LIGHTS,
-                        current,
-                        CONF_END_LIGHT_AREAS,
-                    ): _target_selector("light"),
-                }
-            )
-        else:
-            fields: dict[Any, Any] = {
+        schema = vol.Schema(
+            {
                 _optional_target(
                     CONF_LIGHTS, current, CONF_LIGHT_AREAS
                 ): _target_selector("light"),
+                _optional_target(
+                    CONF_COVERS, current, CONF_COVER_AREAS
+                ): _target_selector("cover"),
+                _optional_target(
+                    CONF_END_LIGHTS,
+                    current,
+                    CONF_END_LIGHT_AREAS,
+                ): _target_selector("light"),
             }
-            if script := current.get(CONF_ALARM_SCRIPT):
-                fields[vol.Optional(CONF_ALARM_SCRIPT, default=script)] = (
-                    _script_selector()
-                )
-            else:
-                fields[vol.Optional(CONF_ALARM_SCRIPT)] = _script_selector()
-            schema = vol.Schema(fields)
+        )
+        return self.async_show_form(step_id="nap", data_schema=schema)
 
-        return self.async_show_form(step_id="init", data_schema=schema)
+    async def async_step_wakeup(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        """Show editable wake-up targets."""
+        current = {**self._entry.data, **self._entry.options}
+
+        if user_input is not None:
+            user_input.setdefault(CONF_LIGHTS, {})
+            return self.async_create_entry(title="", data=user_input)
+
+        fields: dict[Any, Any] = {
+            _optional_target(
+                CONF_LIGHTS, current, CONF_LIGHT_AREAS
+            ): _target_selector("light"),
+        }
+        if script := current.get(CONF_ALARM_SCRIPT):
+            fields[vol.Optional(CONF_ALARM_SCRIPT, default=script)] = (
+                _script_selector()
+            )
+        else:
+            fields[vol.Optional(CONF_ALARM_SCRIPT)] = _script_selector()
+
+        return self.async_show_form(
+            step_id="wakeup", data_schema=vol.Schema(fields)
+        )

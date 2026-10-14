@@ -40,7 +40,7 @@ DEFAULT_CLOSE_COVERS_AT_START: Final = True
 
 EVENT_WAKEUP: Final = "wakeup_helper_wakeup"
 
-CARD_URL: Final = "/wakeup_helper/wakeup-helper-card.js?v=0.4.1"
+CARD_URL: Final = "/wakeup_helper/wakeup-helper-card.js?v=0.4.2"
 STATIC_URL: Final = "/wakeup_helper"
 
 STORAGE_VERSION: Final = 1

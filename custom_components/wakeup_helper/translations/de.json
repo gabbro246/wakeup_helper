@@ -12,24 +12,26 @@
       },
       "nap": {
         "title": "Nickerchen einrichten",
-        "description": "Beim Start werden die Rollos geschlossen und die Lichter ausgeschaltet. Am Ende werden die Rollos geöffnet.",
+        "description": "Lege fest, was das Nickerchen steuert, und wähle die anfängliche Dauer.",
         "data": {
           "name": "Name",
-          "lights": "Lichter, Geräte oder Bereiche",
-          "covers": "Rollos, Geräte oder Bereiche",
-          "duration": "Anfängliche Dauer"
+          "lights": "Lichter oder Bereiche zum Ausschalten",
+          "covers": "Rollos oder Bereiche zum Schließen",
+          "duration": "Anfängliche Nickerchen-Dauer"
         },
         "data_description": {
           "name": "Verwende einen Namen, der das Zimmer oder die Person beschreibt.",
-          "duration": "Dieser Wert kann später am Gerät oder im Dashboard geändert werden."
+          "lights": "Wähle die Lichter, die während des Nickerchens ausgeschaltet sein sollen.",
+          "covers": "Wähle die Rollos, die zu Beginn und am Ende gesteuert werden.",
+          "duration": "Du kannst dies später auf der Geräteseite oder in einem Dashboard ändern."
         }
       },
       "wakeup": {
         "title": "Aufwachlicht einrichten",
-        "description": "Die ausgewählten Lichter werden langsam heller und erreichen zur Weckzeit die gewünschte Helligkeit.",
+        "description": "Wähle, welche Lichter heller werden und wie das Aufwachen ablaufen soll.",
         "data": {
           "name": "Name",
-          "lights": "Lichter, Geräte oder Bereiche",
+          "lights": "Lichter oder Bereiche zum Aufblenden",
           "alarm_time": "Anfängliche Weckzeit",
           "fade_duration": "Anfängliche Aufblenddauer",
           "brightness": "Anfängliche Endhelligkeit",
@@ -37,6 +39,10 @@
         },
         "data_description": {
           "name": "Verwende einen Namen, der das Zimmer oder die Person beschreibt.",
+          "lights": "Diese werden vor der Weckzeit allmählich heller.",
+          "alarm_time": "Zu dieser Zeit erreichen die Lichter ihre Endhelligkeit.",
+          "fade_duration": "So viele Minuten vor der Weckzeit werden die Lichter heller.",
+          "brightness": "Die Helligkeit, die zur Weckzeit erreicht wird.",
           "alarm_script": "Optional. Ein Skript kann Musik, Rollos, Ansagen oder andere Aktionen starten."
         }
       }
@@ -44,19 +50,29 @@
   },
   "options": {
     "step": {
-      "init": {
-        "title": "Ziele der Routine bearbeiten",
-        "description": "Wähle einzelne Geräte, ganze Bereiche oder beides aus.",
+      "nap": {
+        "title": "Ziele des Nickerchens bearbeiten",
+        "description": "Wähle, was dieses Nickerchen zu Beginn und am Ende steuert.",
         "data": {
-          "lights": "Lichter, Geräte oder Bereiche",
-          "covers": "Rollos, Geräte oder Bereiche",
-          "end_lights": "Lichter, Geräte oder Bereiche, die am Ende eingeschaltet werden",
+          "lights": "Lichter oder Bereiche zum Ausschalten",
+          "covers": "Rollos oder Bereiche zum Schließen",
+          "end_lights": "Lichter oder Bereiche zum Einschalten"
+        },
+        "data_description": {
+          "lights": "Diese werden zu Beginn des Nickerchens ausgeschaltet.",
+          "covers": "Diese werden zu Beginn geschlossen und können am Ende wieder geöffnet werden.",
+          "end_lights": "Diese werden am Ende des Nickerchens eingeschaltet."
+        }
+      },
+      "wakeup": {
+        "title": "Ziele des Aufwachlichts bearbeiten",
+        "description": "Wähle, welche Lichter heller werden und was zur Weckzeit ausgeführt wird.",
+        "data": {
+          "lights": "Lichter oder Bereiche zum Aufblenden",
           "alarm_script": "Skript zur Weckzeit"
         },
         "data_description": {
-          "lights": "Wähle einzelne Lichter oder alle Lichter eines Bereichs aus.",
-          "covers": "Wähle einzelne Rollos oder alle Rollos eines Bereichs aus.",
-          "end_lights": "Diese Auswahl ist unabhängig von den Lichtern, die zu Beginn ausgeschaltet werden.",
+          "lights": "Diese werden vor der Weckzeit allmählich heller.",
           "alarm_script": "Optional. Leere dieses Feld, um kein Skript mehr auszuführen."
         }
       }

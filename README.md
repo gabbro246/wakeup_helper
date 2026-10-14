@@ -61,9 +61,9 @@ time, duration, or brightness. To change which room devices a routine uses—or
 to add or remove the morning script—open **Settings → Devices & services →
 Wakeup Helper**, select the routine, and choose **Configure**.
 
-Each optional target on the Configure screen accepts individual entities,
-devices, areas, or any combination of them. Nap routines also let you select a
-separate light target for the end.
+Each optional target on the Configure screen accepts individual lights or
+covers, whole areas, or both. Nap routines also let you select separate lights
+or areas for the end.
 
 ## Add it to your dashboard
 

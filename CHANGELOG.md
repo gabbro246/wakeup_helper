@@ -1,7 +1,11 @@
 # Changelog
 
+## 0.4.2
+- Clarified what to select for each nap and wake-up action.
+- Added concise guidance for alarm time, fade duration, brightness, and scripts.
+
 ## 0.4.1
-- Combined room and individual-device choices into one optional selector.
+- Combined room and individual light or cover choices into one optional selector.
 - Added switches for turning off lights and closing covers when a nap starts.
 - Hid unused action switches and fixed the divider between the main controls.
 
