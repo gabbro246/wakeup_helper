@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.0
+- WakeupLight now appears first when adding a routine, with clearer default names.
+- Added card color selection during setup, with light blue and amber defaults.
+- Improved card previews, unavailable controls, and routine detection.
+
 ## 0.4.8
 - Made setup, configuration, and entity wording clearer and more consistent.
 - Improved dashboard time formatting and screen reader labels.

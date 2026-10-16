@@ -19,12 +19,14 @@
           "covers": "Rollos zum Schließen",
           "end_lights": "Lichter zum Einschalten",
           "end_script": "Auszuführendes Skript",
-          "duration": "Nickerchen-Dauer"
+          "duration": "Nickerchen-Dauer",
+          "highlight_color": "Hervorhebungsfarbe der Karte"
         },
         "data_description": {
           "covers": "Diese können am Ende des Nickerchens auch geöffnet werden.",
           "end_lights": "Diese werden am Ende des Nickerchens eingeschaltet.",
-          "end_script": "Wird am Ende des Nickerchens ausgeführt."
+          "end_script": "Wird am Ende des Nickerchens ausgeführt.",
+          "highlight_color": "Wähle die Hervorhebungsfarbe für die Dashboard-Karte dieser Routine."
         }
       },
       "wakeup": {
@@ -37,13 +39,15 @@
           "alarm_time": "Weckzeit",
           "fade_duration": "Aufblenddauer",
           "brightness": "Endhelligkeit",
-          "alarm_script": "Auszuführendes Skript"
+          "alarm_script": "Auszuführendes Skript",
+          "highlight_color": "Hervorhebungsfarbe der Karte"
         },
         "data_description": {
           "lights": "Diese werden vor dem Alarm allmählich heller.",
           "covers": "Diese werden geöffnet, wenn der Alarm ausgelöst wird.",
           "fade_duration": "So lange brauchen die Lichter, um ihre Endhelligkeit zu erreichen.",
-          "alarm_script": "Wird ausgeführt, wenn der Alarm ausgelöst wird."
+          "alarm_script": "Wird ausgeführt, wenn der Alarm ausgelöst wird.",
+          "highlight_color": "Wähle die Hervorhebungsfarbe für die Dashboard-Karte dieser Routine."
         }
       }
     }

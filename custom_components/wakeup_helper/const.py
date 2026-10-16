@@ -64,12 +64,12 @@ DEFAULT_OPEN_COVERS_AT_ALARM: Final = True
 DEFAULT_TURN_OFF_LIGHTS_AFTER_ALARM: Final = False
 DEFAULT_TURN_OFF_LIGHTS_AT_START: Final = True
 DEFAULT_CLOSE_COVERS_AT_START: Final = True
-DEFAULT_NAP_HIGHLIGHT_COLOR: Final = "primary"
-DEFAULT_WAKEUP_HIGHLIGHT_COLOR: Final = "accent"
+DEFAULT_NAP_HIGHLIGHT_COLOR: Final = "light-blue"
+DEFAULT_WAKEUP_HIGHLIGHT_COLOR: Final = "amber"
 
 EVENT_WAKEUP: Final = "wakeup_helper_wakeup"
 
-CARD_URL: Final = "/wakeup_helper/wakeup-helper-card.js?v=0.4.8"
+CARD_URL: Final = "/wakeup_helper/wakeup-helper-card.js?v=0.5.0"
 STATIC_URL: Final = "/wakeup_helper"
 
 STORAGE_VERSION: Final = 1

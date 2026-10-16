@@ -17,6 +17,7 @@ from .const import (
     DEFAULT_WAKEUP_HIGHLIGHT_COLOR,
     DOMAIN,
     ROUTINE_NAP,
+    ROUTINE_WAKEUP,
 )
 from .entity import WakeupHelperEntity
 from .routine import NapController, WakeupController
@@ -104,6 +105,7 @@ class NapSwitch(WakeupHelperEntity, SwitchEntity):
                 CONF_HIGHLIGHT_COLOR, DEFAULT_NAP_HIGHLIGHT_COLOR
             ),
             "wakeup_helper_name": self._entry.title,
+            "wakeup_helper_routine": ROUTINE_NAP,
         }
         if device_id := self.device_registry_id:
             attributes["wakeup_helper_device_id"] = device_id
@@ -141,6 +143,7 @@ class WakeupSwitch(WakeupHelperEntity, SwitchEntity):
                 CONF_HIGHLIGHT_COLOR, DEFAULT_WAKEUP_HIGHLIGHT_COLOR
             ),
             "wakeup_helper_name": self._entry.title,
+            "wakeup_helper_routine": ROUTINE_WAKEUP,
         }
         if device_id := self.device_registry_id:
             attributes["wakeup_helper_device_id"] = device_id

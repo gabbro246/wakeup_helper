@@ -136,11 +136,37 @@ class WakeupHelperCard extends HTMLElement {
     return base ? domain + "." + base + (suffix ? "_" + suffix : "") : "";
   }
 
+  _routineType() {
+    if (
+      this._config?.routine === "nap" ||
+      this._config?.routine === "wakeup"
+    ) {
+      return this._config.routine;
+    }
+
+    const primary = this._state(this._config?.entity);
+    const linkedRoutine = primary?.attributes?.wakeup_helper_routine;
+    if (linkedRoutine === "nap" || linkedRoutine === "wakeup") {
+      return linkedRoutine;
+    }
+
+    const linkedEntities = primary?.attributes?.wakeup_helper_entities;
+    if (
+      linkedEntities?.alarm_time ||
+      linkedEntities?.fade_duration ||
+      linkedEntities?.end_brightness ||
+      linkedEntities?.next_alarm
+    ) {
+      return "wakeup";
+    }
+
+    const alarmTime = this._entity("alarm_time_entity", "time", "alarm_time");
+    return this._hass?.states[alarmTime] ? "wakeup" : "nap";
+  }
+
   _entities() {
     const alarmTime = this._entity("alarm_time_entity", "time", "alarm_time");
-    const wakeup =
-      this._config?.routine === "wakeup" ||
-      (this._config?.routine !== "nap" && Boolean(this._hass?.states[alarmTime]));
+    const wakeup = this._routineType() === "wakeup";
     return wakeup
       ? {
           type: "wakeup",
@@ -170,9 +196,9 @@ class WakeupHelperCard extends HTMLElement {
     const color = HIGHLIGHT_COLORS.has(configured)
       ? configured
       : type === "wakeup"
-        ? "accent"
-        : "primary";
-    return "--routine-color:var(--" + color + "-color)";
+        ? "amber"
+        : "light-blue";
+    return "--routine-color:var(--" + color + "-color,var(--primary-color))";
   }
 
   _secondaryText() {
@@ -251,15 +277,38 @@ class WakeupHelperCard extends HTMLElement {
     if (!this._timer && this.isConnected) this.connectedCallback();
 
     if (!this._config.entity) {
+      const previews = {
+        nap: {
+          type: "nap",
+          icon: "mdi:sleep",
+          value: "30 min",
+        },
+        wakeup: {
+          type: "wakeup",
+          icon: "mdi:weather-sunset-up",
+          value: "07:00",
+        },
+      };
+      const preview = previews[this._config.routine] || {
+        type: "neutral",
+        icon: "mdi:bed-clock",
+        value: "--:--",
+      };
       this.shadowRoot.innerHTML =
         "<style>" +
         this._styles() +
         "</style>" +
-        '<ha-card class="setup-preview wakeup ' +
+        '<ha-card class="setup-preview ' +
+        preview.type +
+        " " +
         this._layout() +
         '" aria-label="Wakeup Helper card preview">' +
-        '<div class="preview-mark" aria-hidden="true"><div class="preview-icon"><ha-icon icon="mdi:weather-sunset-up"></ha-icon></div>' +
-        '<div class="preview-feature"><span>−</span><strong>07:00</strong><span>+</span></div></div>' +
+        '<div class="preview-mark" aria-hidden="true"><div class="preview-icon"><ha-icon icon="' +
+        preview.icon +
+        '"></ha-icon></div>' +
+        '<div class="preview-feature"><span>−</span><strong>' +
+        preview.value +
+        "</strong><span>+</span></div></div>" +
         "</ha-card>";
       return;
     }
@@ -349,33 +398,55 @@ class WakeupHelperCard extends HTMLElement {
 
   _timeFeature(entityId) {
     const state = this._state(entityId);
-    const value = state?.state?.slice(0, 5) || "Unavailable";
+    const value = state?.state || "";
+    if (!/^([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/.test(value)) {
+      return this._unavailableFeature(
+        "Move alarm 15 minutes earlier",
+        "Move alarm 15 minutes later",
+      );
+    }
     return (
       '<div class="feature time-feature"><button data-time-direction="-1" aria-label="Move alarm 15 minutes earlier"' +
-      (state ? "" : " disabled") +
       '>−</button><strong>' +
-      escapeHtml(value) +
+      escapeHtml(value.slice(0, 5)) +
       '</strong><button data-time-direction="1" aria-label="Move alarm 15 minutes later"' +
-      (state ? "" : " disabled") +
       ">+</button></div>"
     );
   }
 
   _stepperFeature(kind, entityId) {
     const state = this._state(entityId);
-    if (!state) return '<div class="feature missing">Unavailable</div>';
-    const value = Number(state.state);
+    const value = Number(state?.state);
+    if (
+      !state ||
+      state.state === "unknown" ||
+      state.state === "unavailable" ||
+      !Number.isFinite(value)
+    ) {
+      return this._unavailableFeature(
+        "Decrease nap duration",
+        "Increase nap duration",
+      );
+    }
     const unit = state.attributes.unit_of_measurement || "";
     return (
       '<div class="feature"><button data-number="' +
       kind +
       '" data-direction="-1" aria-label="Decrease nap duration">−</button><strong>' +
-      escapeHtml(value) +
-      " " +
-      escapeHtml(unit) +
+      escapeHtml(unit ? value + " " + unit : value) +
       '</strong><button data-number="' +
       kind +
       '" data-direction="1" aria-label="Increase nap duration">+</button></div>'
+    );
+  }
+
+  _unavailableFeature(decreaseLabel, increaseLabel) {
+    return (
+      '<div class="feature unavailable-feature"><button disabled aria-label="' +
+      escapeHtml(decreaseLabel) +
+      '">−</button><strong>Unavailable</strong><button disabled aria-label="' +
+      escapeHtml(increaseLabel) +
+      '">+</button></div>'
     );
   }
 
@@ -470,9 +541,9 @@ class WakeupHelperCard extends HTMLElement {
 
   _styles() {
     return [
-      ":host{display:block;height:100%;--wakeup-helper-nap-color:var(--primary-color);--wakeup-helper-wakeup-color:var(--accent-color,var(--primary-color));--wakeup-helper-control-surface:var(--ha-color-fill-neutral-quiet-resting,var(--secondary-background-color));--wakeup-helper-focus:var(--ha-color-focus,var(--primary-color));--wakeup-helper-feature-radius:var(--feature-border-radius,var(--ha-card-features-border-radius,var(--ha-border-radius-lg,18px)));--wakeup-helper-content-radius:var(--ha-border-radius-lg,12px)}",
+      ":host{display:block;height:100%;--wakeup-helper-nap-color:var(--light-blue-color,var(--primary-color));--wakeup-helper-wakeup-color:var(--amber-color,var(--accent-color,var(--primary-color)));--wakeup-helper-control-surface:var(--ha-color-fill-neutral-quiet-resting,var(--secondary-background-color));--wakeup-helper-focus:var(--ha-color-focus,var(--primary-color));--wakeup-helper-feature-radius:var(--feature-border-radius,var(--ha-card-features-border-radius,var(--ha-border-radius-lg,18px)));--wakeup-helper-content-radius:var(--ha-border-radius-lg,12px)}",
       "ha-card{height:100%;min-height:120px;padding:10px;box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;gap:6px;cursor:pointer}",
-      ".nap{--routine-color:var(--wakeup-helper-nap-color)}.wakeup{--routine-color:var(--wakeup-helper-wakeup-color)}",
+      ".nap{--routine-color:var(--wakeup-helper-nap-color)}.wakeup{--routine-color:var(--wakeup-helper-wakeup-color)}.neutral{--routine-color:var(--ha-color-text-secondary,var(--secondary-text-color))}",
       ".tile-main{min-height:56px;min-width:0;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:var(--wakeup-helper-content-radius);cursor:pointer;outline:none;transition:background-color .18s ease,box-shadow .18s ease}",
       ".tile-main:focus-visible,.icon-button:focus-visible,.feature button:focus-visible{box-shadow:inset 0 0 0 2px var(--wakeup-helper-focus);outline:none}",
       ".icon-button{width:42px;height:42px;border:0;border-radius:var(--ha-border-radius-circle,50%);display:grid;place-items:center;background:var(--wakeup-helper-control-surface);color:var(--ha-color-text-secondary,var(--secondary-text-color));cursor:pointer;transition:background-color .18s ease,color .18s ease,box-shadow .18s ease}",
@@ -502,7 +573,7 @@ class WakeupHelperCard extends HTMLElement {
       "ha-card.features.setup-preview{justify-content:center}",
       "ha-card.features .preview-mark{width:min(100%,180px);display:grid;grid-template-columns:42px minmax(0,1fr);align-items:center;gap:10px}",
       "ha-card.features .preview-icon{width:42px;height:42px}ha-card.features.setup-preview .preview-feature{grid-column:1/-1;width:100%}",
-      ".missing,.empty{padding:16px;color:var(--ha-color-text-secondary,var(--secondary-text-color))}",
+      ".empty{padding:16px;color:var(--ha-color-text-secondary,var(--secondary-text-color))}",
       ".setup-preview,.error-card{cursor:default}.setup-preview{justify-content:center;background:var(--ha-card-background,var(--card-background-color))}.preview-mark{width:min(100%,180px);margin:auto;display:grid;justify-items:center;gap:14px}.preview-icon{width:64px;height:64px;border-radius:var(--ha-border-radius-circle,50%);display:grid;place-items:center;background:color-mix(in srgb,var(--routine-color) 18%,var(--wakeup-helper-control-surface));color:var(--routine-color);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--routine-color) 22%,transparent)}.preview-icon ha-icon{--mdc-icon-size:34px}.preview-feature{width:100%;height:40px;border-radius:var(--wakeup-helper-feature-radius);display:grid;grid-template-columns:40px 1fr 40px;align-items:center;text-align:center;background:color-mix(in srgb,var(--routine-color) 12%,var(--wakeup-helper-control-surface));color:var(--primary-text-color)}.preview-feature span{font-size:20px;color:var(--routine-color)}.preview-feature strong{font-size:14px;font-variant-numeric:tabular-nums}",
       "@media(prefers-reduced-motion:reduce){.tile-main,.icon-button,.feature,.feature button{transition:none}}",
       "@media(max-width:220px){ha-card{padding:8px}}",
@@ -565,9 +636,18 @@ class WakeupHelperCardEditor extends HTMLElement {
     this._picker.label = "Routine";
     this._picker.includeDomains = ["switch"];
     this._syncPickerEntities();
-    this._picker.addEventListener("value-changed", (event) =>
-      this._change({ entity: event.detail.value }),
-    );
+    this._picker.addEventListener("value-changed", (event) => {
+      const entity = event.detail.value;
+      const routine =
+        this._hass?.states[entity]?.attributes?.wakeup_helper_routine;
+      this._change({
+        entity,
+        routine:
+          routine === "nap" || routine === "wakeup"
+            ? routine
+            : undefined,
+      });
+    });
     this._layoutInput.addEventListener("value-changed", (event) => {
       const layout = event.detail.value;
       this._change({
@@ -659,6 +739,7 @@ if (!window.customCards.some((card) => card.type === CARD_TAG)) {
           type: "custom:wakeup-helper-card",
           entity: entityId,
           vertical: false,
+          routine: entity.attributes.wakeup_helper_routine,
           grid_options: defaultGridSize(false),
         },
       };

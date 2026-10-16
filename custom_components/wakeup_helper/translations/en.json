@@ -19,12 +19,14 @@
           "covers": "Covers to close",
           "end_lights": "Lights to turn on",
           "end_script": "Script to run",
-          "duration": "Nap duration"
+          "duration": "Nap duration",
+          "highlight_color": "Card highlight color"
         },
         "data_description": {
           "covers": "These can also open when the nap ends.",
           "end_lights": "These turn on when the nap ends.",
-          "end_script": "Runs when the nap ends."
+          "end_script": "Runs when the nap ends.",
+          "highlight_color": "Choose the highlight color for this routine's dashboard card."
         }
       },
       "wakeup": {
@@ -37,13 +39,15 @@
           "alarm_time": "Alarm time",
           "fade_duration": "Fade duration",
           "brightness": "Final brightness",
-          "alarm_script": "Script to run"
+          "alarm_script": "Script to run",
+          "highlight_color": "Card highlight color"
         },
         "data_description": {
           "lights": "These gradually brighten before the alarm.",
           "covers": "These open when the alarm goes off.",
           "fade_duration": "How long the lights take to reach their final brightness.",
-          "alarm_script": "Runs when the alarm goes off."
+          "alarm_script": "Runs when the alarm goes off.",
+          "highlight_color": "Choose the highlight color for this routine's dashboard card."
         }
       }
     }

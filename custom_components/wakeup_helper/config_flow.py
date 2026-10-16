@@ -161,6 +161,12 @@ def _nap_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
             mode=NumberSelectorMode.BOX,
         )
     )
+    schema[
+        vol.Required(
+            CONF_HIGHLIGHT_COLOR,
+            default=values.get(CONF_HIGHLIGHT_COLOR, DEFAULT_NAP_HIGHLIGHT_COLOR),
+        )
+    ] = _highlight_color_selector()
     return vol.Schema(schema)
 
 
@@ -168,7 +174,7 @@ def _wakeup_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
     values = defaults or {}
     schema: dict[Any, Any] = {
         vol.Required(
-            CONF_NAME, default=values.get(CONF_NAME, "Bedroom WakeupLight")
+            CONF_NAME, default=values.get(CONF_NAME, "Bedroom wake-up")
         ): TextSelector(),
         _optional_target(
             CONF_LIGHTS, values, CONF_LIGHT_AREAS
@@ -214,6 +220,12 @@ def _wakeup_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
                     mode=NumberSelectorMode.SLIDER,
                 )
             ),
+            vol.Required(
+                CONF_HIGHLIGHT_COLOR,
+                default=values.get(
+                    CONF_HIGHLIGHT_COLOR, DEFAULT_WAKEUP_HIGHLIGHT_COLOR
+                ),
+            ): _highlight_color_selector(),
         }
     )
     return vol.Schema(schema)
@@ -230,7 +242,7 @@ class WakeupHelperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Choose which type of routine to create."""
         return self.async_show_menu(
             step_id="user",
-            menu_options=["nap", "wakeup"],
+            menu_options=["wakeup", "nap"],
         )
 
     async def async_step_nap(
