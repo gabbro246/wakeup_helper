@@ -28,7 +28,9 @@ from .const import (
     CONF_DURATION,
     CONF_END_LIGHT_AREAS,
     CONF_END_LIGHTS,
+    CONF_END_SCRIPT,
     CONF_FADE_DURATION,
+    CONF_HIGHLIGHT_COLOR,
     CONF_LIGHT_AREAS,
     CONF_LIGHTS,
     CONF_NAME,
@@ -101,38 +103,9 @@ def _script_selector() -> EntitySelector:
 
 def _nap_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
     values = defaults or {}
-    return vol.Schema(
-        {
-            vol.Required(
-                CONF_NAME, default=values.get(CONF_NAME, "Bedroom nap")
-            ): TextSelector(),
-            _optional_target(
-                CONF_LIGHTS, values, CONF_LIGHT_AREAS
-            ): _target_selector("light"),
-            _optional_target(
-                CONF_COVERS, values, CONF_COVER_AREAS
-            ): _target_selector("cover"),
-            vol.Required(
-                CONF_DURATION,
-                default=values.get(CONF_DURATION, DEFAULT_NAP_DURATION),
-            ): NumberSelector(
-                NumberSelectorConfig(
-                    min=15,
-                    max=90,
-                    step=5,
-                    unit_of_measurement="min",
-                    mode=NumberSelectorMode.BOX,
-                )
-            ),
-        }
-    )
-
-
-def _wakeup_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
-    values = defaults or {}
     schema: dict[Any, Any] = {
         vol.Required(
-            CONF_NAME, default=values.get(CONF_NAME, "Bedroom wake-up light")
+            CONF_NAME, default=values.get(CONF_NAME, "Bedroom nap")
         ): TextSelector(),
         _optional_target(
             CONF_LIGHTS, values, CONF_LIGHT_AREAS
@@ -140,34 +113,46 @@ def _wakeup_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
         _optional_target(
             CONF_COVERS, values, CONF_COVER_AREAS
         ): _target_selector("cover"),
+        _optional_target(
+            CONF_END_LIGHTS, values, CONF_END_LIGHT_AREAS
+        ): _target_selector("light"),
+    }
+    script_default = values.get(CONF_END_SCRIPT)
+    if script_default:
+        schema[vol.Optional(CONF_END_SCRIPT, default=script_default)] = (
+            _script_selector()
+        )
+    else:
+        schema[vol.Optional(CONF_END_SCRIPT)] = _script_selector()
+    schema[
         vol.Required(
-            CONF_ALARM_TIME,
-            default=values.get(CONF_ALARM_TIME, DEFAULT_ALARM_TIME),
-        ): TimeSelector(),
+            CONF_DURATION,
+            default=values.get(CONF_DURATION, DEFAULT_NAP_DURATION),
+        )
+    ] = NumberSelector(
+        NumberSelectorConfig(
+            min=15,
+            max=90,
+            step=5,
+            unit_of_measurement="min",
+            mode=NumberSelectorMode.BOX,
+        )
+    )
+    return vol.Schema(schema)
+
+
+def _wakeup_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
+    values = defaults or {}
+    schema: dict[Any, Any] = {
         vol.Required(
-            CONF_FADE_DURATION,
-            default=values.get(CONF_FADE_DURATION, DEFAULT_FADE_DURATION),
-        ): NumberSelector(
-            NumberSelectorConfig(
-                min=0,
-                max=120,
-                step=5,
-                unit_of_measurement="min",
-                mode=NumberSelectorMode.BOX,
-            )
-        ),
-        vol.Required(
-            CONF_BRIGHTNESS,
-            default=values.get(CONF_BRIGHTNESS, DEFAULT_BRIGHTNESS),
-        ): NumberSelector(
-            NumberSelectorConfig(
-                min=1,
-                max=100,
-                step=5,
-                unit_of_measurement="%",
-                mode=NumberSelectorMode.SLIDER,
-            )
-        ),
+            CONF_NAME, default=values.get(CONF_NAME, "Bedroom WakeupLight")
+        ): TextSelector(),
+        _optional_target(
+            CONF_LIGHTS, values, CONF_LIGHT_AREAS
+        ): _target_selector("light"),
+        _optional_target(
+            CONF_COVERS, values, CONF_COVER_AREAS
+        ): _target_selector("cover"),
     }
     script_default = values.get(CONF_ALARM_SCRIPT)
     if script_default:
@@ -176,6 +161,38 @@ def _wakeup_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
         )
     else:
         schema[vol.Optional(CONF_ALARM_SCRIPT)] = _script_selector()
+    schema.update(
+        {
+            vol.Required(
+                CONF_ALARM_TIME,
+                default=values.get(CONF_ALARM_TIME, DEFAULT_ALARM_TIME),
+            ): TimeSelector(),
+            vol.Required(
+                CONF_FADE_DURATION,
+                default=values.get(CONF_FADE_DURATION, DEFAULT_FADE_DURATION),
+            ): NumberSelector(
+                NumberSelectorConfig(
+                    min=0,
+                    max=120,
+                    step=5,
+                    unit_of_measurement="min",
+                    mode=NumberSelectorMode.BOX,
+                )
+            ),
+            vol.Required(
+                CONF_BRIGHTNESS,
+                default=values.get(CONF_BRIGHTNESS, DEFAULT_BRIGHTNESS),
+            ): NumberSelector(
+                NumberSelectorConfig(
+                    min=1,
+                    max=100,
+                    step=5,
+                    unit_of_measurement="%",
+                    mode=NumberSelectorMode.SLIDER,
+                )
+            ),
+        }
+    )
     return vol.Schema(schema)
 
 
@@ -196,7 +213,7 @@ class WakeupHelperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_nap(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
-        """Configure a nap mode."""
+        """Configure a NapMode."""
         if user_input is not None:
             name = user_input.pop(CONF_NAME)
             return self.async_create_entry(
@@ -210,7 +227,7 @@ class WakeupHelperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_wakeup(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
-        """Configure a wake-up light."""
+        """Configure a WakeupLight."""
         if user_input is not None:
             name = user_input.pop(CONF_NAME)
             return self.async_create_entry(
@@ -258,34 +275,47 @@ class WakeupHelperOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             for key in (CONF_LIGHTS, CONF_COVERS, CONF_END_LIGHTS):
                 user_input.setdefault(key, {})
+            user_input.setdefault(CONF_END_SCRIPT, None)
+            if CONF_HIGHLIGHT_COLOR in current:
+                user_input[CONF_HIGHLIGHT_COLOR] = current[CONF_HIGHLIGHT_COLOR]
             return self.async_create_entry(title="", data=user_input)
 
-        schema = vol.Schema(
-            {
-                _optional_target(
-                    CONF_LIGHTS, current, CONF_LIGHT_AREAS
-                ): _target_selector("light"),
-                _optional_target(
-                    CONF_COVERS, current, CONF_COVER_AREAS
-                ): _target_selector("cover"),
-                _optional_target(
-                    CONF_END_LIGHTS,
-                    current,
-                    CONF_END_LIGHT_AREAS,
-                ): _target_selector("light"),
-            }
+        fields: dict[Any, Any] = {
+            _optional_target(
+                CONF_LIGHTS, current, CONF_LIGHT_AREAS
+            ): _target_selector("light"),
+            _optional_target(
+                CONF_COVERS, current, CONF_COVER_AREAS
+            ): _target_selector("cover"),
+            _optional_target(
+                CONF_END_LIGHTS,
+                current,
+                CONF_END_LIGHT_AREAS,
+            ): _target_selector("light"),
+        }
+        if script := current.get(CONF_END_SCRIPT):
+            fields[vol.Optional(CONF_END_SCRIPT, default=script)] = (
+                _script_selector()
+            )
+        else:
+            fields[vol.Optional(CONF_END_SCRIPT)] = _script_selector()
+
+        return self.async_show_form(
+            step_id="nap", data_schema=vol.Schema(fields)
         )
-        return self.async_show_form(step_id="nap", data_schema=schema)
 
     async def async_step_wakeup(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
-        """Show editable wake-up targets."""
+        """Show editable WakeupLight targets."""
         current = {**self._entry.data, **self._entry.options}
 
         if user_input is not None:
             user_input.setdefault(CONF_LIGHTS, {})
             user_input.setdefault(CONF_COVERS, {})
+            user_input.setdefault(CONF_ALARM_SCRIPT, None)
+            if CONF_HIGHLIGHT_COLOR in current:
+                user_input[CONF_HIGHLIGHT_COLOR] = current[CONF_HIGHLIGHT_COLOR]
             return self.async_create_entry(title="", data=user_input)
 
         fields: dict[Any, Any] = {

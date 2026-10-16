@@ -1,14 +1,19 @@
 # Changelog
 
+## 0.4.5
+- Added optional scripts that run when a NapMode nap ends.
+- Made setup and later configuration show the appropriate settings.
+- Simplified readme
+
 ## 0.4.4
-- Added an option to turn off wake-up lights after the alarm finishes.
+- Added an option for WakeupLight to turn off its lights after an alarm.
 
 ## 0.4.3
-- Added the option to open selected covers when a wake-up alarm starts.
+- Added the option to open selected covers when a WakeupLight alarm starts.
 - Added a device switch for turning the cover action on or off.
 
 ## 0.4.2
-- Clarified what to select for each nap and wake-up action.
+- Clarified what to select for NapMode and WakeupLight actions.
 - Added concise guidance for alarm time, fade duration, brightness, and scripts.
 
 ## 0.4.1
@@ -22,7 +27,7 @@
 - Removed the divider between each routine toggle and its time control.
 
 ## 0.3.15
-- Replaced the routine type dropdown with separate Nap mode and Wake-up light choices.
+- Replaced the routine type dropdown with separate NapMode and WakeupLight choices.
 
 ## 0.3.14
 - Fixed dashboard cards sometimes showing a configuration error after a restart.
@@ -81,12 +86,12 @@
 
 ## 0.2.0
 - Added a built-in dashboard card with inline controls and a live countdown.
-- Added remaining-time sensors for naps and wake-up alarms.
+- Added remaining-time sensors for NapMode naps and WakeupLight alarms.
 - Removed the need for a separate dashboard card from HACS.
 - Wakeup Helper is now shown as a device integration.
 
 ## 0.1.0
-- Added separate nap and wake-up light devices for each room.
+- Added separate NapMode and WakeupLight devices for each room.
 - Added setup and editing through the Home Assistant interface.
 - Removed the need to create helpers or dashboard card dependencies.
-- Added optional scripts and events at wake-up time.
+- Added optional scripts and events at WakeupLight alarm time.

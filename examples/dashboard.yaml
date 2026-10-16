@@ -1,12 +1,12 @@
 # Replace these entity IDs with the ones created for your routines.
 
-nap_mode:
+NapMode:
   type: custom:wakeup-helper-card
   entity: switch.bedroom_nap
 
-wake_up_light:
+WakeupLight:
   type: custom:wakeup-helper-card
-  entity: switch.bedroom_wake_up_light
+  entity: switch.bedroom_wakeuplight
 
 
 # Horizontal is the default. Add this to either card for the vertical layout:

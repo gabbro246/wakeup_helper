@@ -28,6 +28,7 @@ from .const import (
     CONF_DURATION,
     CONF_END_LIGHT_AREAS,
     CONF_END_LIGHTS,
+    CONF_END_SCRIPT,
     CONF_FADE_DURATION,
     CONF_LIGHT_AREAS,
     CONF_LIGHTS,
@@ -266,7 +267,7 @@ class RoutineController:
 
 
 class NapController(RoutineController):
-    """Control one nap mode device."""
+    """Control one NapMode device."""
 
     duration: int
     active: bool
@@ -436,6 +437,10 @@ class NapController(RoutineController):
             await self._async_call_target(
                 "light", "turn_on", self.end_light_target
             )
+        if script := self.config.get(CONF_END_SCRIPT):
+            await self._async_call_target(
+                "script", "turn_on", {"entity_id": [script]}
+            )
 
     @callback
     def _schedule_end(self) -> None:
@@ -453,7 +458,7 @@ class NapController(RoutineController):
 
 
 class WakeupController(RoutineController):
-    """Control one daily wake-up light device."""
+    """Control one daily WakeupLight device."""
 
     enabled: bool
     alarm_time: time

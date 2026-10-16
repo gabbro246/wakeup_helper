@@ -11,7 +11,13 @@ from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import WakeupHelperConfigEntry
-from .const import DOMAIN, ROUTINE_NAP
+from .const import (
+    CONF_HIGHLIGHT_COLOR,
+    DEFAULT_NAP_HIGHLIGHT_COLOR,
+    DEFAULT_WAKEUP_HIGHLIGHT_COLOR,
+    DOMAIN,
+    ROUTINE_NAP,
+)
 from .entity import WakeupHelperEntity
 from .routine import NapController, WakeupController
 
@@ -94,6 +100,9 @@ class NapSwitch(WakeupHelperEntity, SwitchEntity):
         """Expose this routine's entities and device to its dashboard card."""
         attributes: dict[str, Any] = {
             "wakeup_helper_entities": dict(self.controller.entity_ids),
+            "wakeup_helper_highlight_color": self.controller.config.get(
+                CONF_HIGHLIGHT_COLOR, DEFAULT_NAP_HIGHLIGHT_COLOR
+            ),
             "wakeup_helper_name": self._entry.title,
         }
         if device_id := self.device_registry_id:
@@ -112,7 +121,7 @@ class NapSwitch(WakeupHelperEntity, SwitchEntity):
 
 
 class WakeupSwitch(WakeupHelperEntity, SwitchEntity):
-    """Enable or disable a wake-up light."""
+    """Enable or disable a WakeupLight."""
 
     _attr_translation_key = "wakeup_control"
     _attr_icon = "mdi:weather-sunset-up"
@@ -128,6 +137,9 @@ class WakeupSwitch(WakeupHelperEntity, SwitchEntity):
         """Expose this routine's entities and device to its dashboard card."""
         attributes: dict[str, Any] = {
             "wakeup_helper_entities": dict(self.controller.entity_ids),
+            "wakeup_helper_highlight_color": self.controller.config.get(
+                CONF_HIGHLIGHT_COLOR, DEFAULT_WAKEUP_HIGHLIGHT_COLOR
+            ),
             "wakeup_helper_name": self._entry.title,
         }
         if device_id := self.device_registry_id:
@@ -146,7 +158,7 @@ class WakeupSwitch(WakeupHelperEntity, SwitchEntity):
 
 
 class WakeupOpenCoversSwitch(WakeupHelperEntity, SwitchEntity):
-    """Choose whether covers open at wake-up alarm time."""
+    """Choose whether covers open at WakeupLight alarm time."""
 
     _attr_translation_key = "open_covers_at_alarm"
     _attr_icon = "mdi:window-shutter-open"
@@ -170,7 +182,7 @@ class WakeupOpenCoversSwitch(WakeupHelperEntity, SwitchEntity):
 
 
 class WakeupTurnOffLightsSwitch(WakeupHelperEntity, SwitchEntity):
-    """Choose whether lights turn off after the wake-up alarm."""
+    """Choose whether lights turn off after the WakeupLight alarm."""
 
     _attr_translation_key = "turn_off_lights_after_alarm"
     _attr_icon = "mdi:lightbulb-off-outline"

@@ -6,29 +6,33 @@
         "title": "Add a sleep routine",
         "description": "Choose the kind of routine you want to create. You can add more routines later.",
         "menu_options": {
-          "nap": "Nap mode",
-          "wakeup": "Wake-up light"
+          "nap": "NapMode",
+          "wakeup": "WakeupLight"
         }
       },
       "nap": {
-        "title": "Set up nap mode",
-        "description": "Choose what the nap controls and its initial duration.",
+        "title": "Set up NapMode",
+        "description": "Choose what NapMode controls and set its initial duration.",
         "data": {
           "name": "Name",
           "lights": "Lights or areas to turn off",
-          "covers": "Covers or areas to close",
+          "covers": "Covers or areas to close and open",
+          "end_lights": "Lights or areas to turn on when nap ends",
+          "end_script": "Script to run when nap ends",
           "duration": "Initial nap duration"
         },
         "data_description": {
           "name": "Use a name that identifies the room or person.",
           "lights": "Choose the lights that should be off during the nap.",
           "covers": "Choose the covers controlled at the start and end of the nap.",
+          "end_lights": "Choose the lights that should turn on when the nap ends.",
+          "end_script": "Optional. Use a script for music, announcements, or other end-of-nap actions.",
           "duration": "You can change this later from the device page or a dashboard."
         }
       },
       "wakeup": {
-        "title": "Set up a wake-up light",
-        "description": "Choose which lights brighten and how the wake-up should run.",
+        "title": "Set up a WakeupLight",
+        "description": "Choose which lights brighten and how WakeupLight should run.",
         "data": {
           "name": "Name",
           "lights": "Lights or areas to brighten",
@@ -57,17 +61,19 @@
         "description": "Choose what this nap controls at the start and end.",
         "data": {
           "lights": "Lights or areas to turn off",
-          "covers": "Covers or areas to close",
-          "end_lights": "Lights or areas to turn on"
+          "covers": "Covers or areas to close and open",
+          "end_lights": "Lights or areas to turn on",
+          "end_script": "Script to run when nap ends"
         },
         "data_description": {
           "lights": "These turn off when the nap starts.",
           "covers": "These close when the nap starts and can reopen when it ends.",
-          "end_lights": "These turn on when the nap ends."
+          "end_lights": "These turn on when the nap ends.",
+          "end_script": "Optional. Clear this field to stop running a script."
         }
       },
       "wakeup": {
-        "title": "Edit wake-up targets",
+        "title": "Edit WakeupLight targets",
         "description": "Choose which lights brighten and what happens at alarm time.",
         "data": {
           "lights": "Lights or areas to brighten",
@@ -85,10 +91,10 @@
   "entity": {
     "switch": {
       "nap_control": {
-        "name": "Nap mode"
+        "name": "NapMode"
       },
       "wakeup_control": {
-        "name": "Wake-up light"
+        "name": "WakeupLight"
       },
       "turn_off_lights_at_start": {
         "name": "Turn off lights when nap starts"

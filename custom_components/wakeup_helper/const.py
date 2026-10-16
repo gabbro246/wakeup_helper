@@ -19,6 +19,7 @@ CONF_COVERS: Final = "covers"
 CONF_COVER_AREAS: Final = "cover_areas"
 CONF_END_LIGHTS: Final = "end_lights"
 CONF_END_LIGHT_AREAS: Final = "end_light_areas"
+CONF_END_SCRIPT: Final = "end_script"
 CONF_ALARM_SCRIPT: Final = "alarm_script"
 CONF_DURATION: Final = "duration"
 CONF_ALARM_TIME: Final = "alarm_time"
@@ -30,6 +31,28 @@ CONF_OPEN_COVERS_AT_ALARM: Final = "open_covers_at_alarm"
 CONF_TURN_OFF_LIGHTS_AFTER_ALARM: Final = "turn_off_lights_after_alarm"
 CONF_TURN_OFF_LIGHTS_AT_START: Final = "turn_off_lights_at_start"
 CONF_CLOSE_COVERS_AT_START: Final = "close_covers_at_start"
+CONF_HIGHLIGHT_COLOR: Final = "highlight_color"
+
+HIGHLIGHT_COLORS: Final[tuple[str, ...]] = (
+    "primary",
+    "accent",
+    "red",
+    "pink",
+    "purple",
+    "deep-purple",
+    "indigo",
+    "blue",
+    "light-blue",
+    "cyan",
+    "teal",
+    "green",
+    "light-green",
+    "amber",
+    "orange",
+    "deep-orange",
+    "brown",
+    "blue-grey",
+)
 
 DEFAULT_NAP_DURATION: Final = 30
 DEFAULT_ALARM_TIME: Final = "07:00:00"
@@ -41,10 +64,12 @@ DEFAULT_OPEN_COVERS_AT_ALARM: Final = True
 DEFAULT_TURN_OFF_LIGHTS_AFTER_ALARM: Final = False
 DEFAULT_TURN_OFF_LIGHTS_AT_START: Final = True
 DEFAULT_CLOSE_COVERS_AT_START: Final = True
+DEFAULT_NAP_HIGHLIGHT_COLOR: Final = "primary"
+DEFAULT_WAKEUP_HIGHLIGHT_COLOR: Final = "accent"
 
 EVENT_WAKEUP: Final = "wakeup_helper_wakeup"
 
-CARD_URL: Final = "/wakeup_helper/wakeup-helper-card.js?v=0.4.4"
+CARD_URL: Final = "/wakeup_helper/wakeup-helper-card.js?v=0.4.5"
 STATIC_URL: Final = "/wakeup_helper"
 
 STORAGE_VERSION: Final = 1

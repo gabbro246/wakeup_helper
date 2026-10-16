@@ -19,13 +19,13 @@ async def async_setup_entry(
     entry: WakeupHelperConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Set up a wake-up alarm time entity."""
+    """Set up a WakeupLight alarm time entity."""
     if entry.data["routine_type"] == ROUTINE_WAKEUP:
         async_add_entities([AlarmTimeEntity(entry, entry.runtime_data)])
 
 
 class AlarmTimeEntity(WakeupHelperEntity, TimeEntity):
-    """Configure a wake-up light's alarm time."""
+    """Configure a WakeupLight's alarm time."""
 
     _attr_translation_key = "alarm_time"
     _attr_icon = "mdi:alarm"

@@ -58,7 +58,7 @@ class NapDurationNumber(WakeupHelperEntity, NumberEntity):
 
 
 class FadeDurationNumber(WakeupHelperEntity, NumberEntity):
-    """Configure a wake-up light's fade duration."""
+    """Configure a WakeupLight's fade duration."""
 
     _attr_translation_key = "fade_duration"
     _attr_icon = "mdi:weather-sunset-up"

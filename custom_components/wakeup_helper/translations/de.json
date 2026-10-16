@@ -6,28 +6,32 @@
         "title": "Schlafroutine hinzufügen",
         "description": "Wähle aus, welche Routine du erstellen möchtest. Weitere Routinen können später hinzugefügt werden.",
         "menu_options": {
-          "nap": "Nickerchen",
-          "wakeup": "Aufwachlicht"
+          "nap": "NapMode",
+          "wakeup": "WakeupLight"
         }
       },
       "nap": {
-        "title": "Nickerchen einrichten",
-        "description": "Lege fest, was das Nickerchen steuert, und wähle die anfängliche Dauer.",
+        "title": "NapMode einrichten",
+        "description": "Lege fest, was NapMode steuert, und wähle die anfängliche Dauer.",
         "data": {
           "name": "Name",
           "lights": "Lichter oder Bereiche zum Ausschalten",
-          "covers": "Rollos oder Bereiche zum Schließen",
+          "covers": "Rollos oder Bereiche zum Schließen und Öffnen",
+          "end_lights": "Lichter oder Bereiche zum Einschalten am Ende",
+          "end_script": "Skript am Ende des Nickerchens",
           "duration": "Anfängliche Nickerchen-Dauer"
         },
         "data_description": {
           "name": "Verwende einen Namen, der das Zimmer oder die Person beschreibt.",
           "lights": "Wähle die Lichter, die während des Nickerchens ausgeschaltet sein sollen.",
           "covers": "Wähle die Rollos, die zu Beginn und am Ende gesteuert werden.",
+          "end_lights": "Wähle die Lichter, die am Ende des Nickerchens eingeschaltet werden sollen.",
+          "end_script": "Optional. Verwende ein Skript für Musik, Ansagen oder andere Aktionen am Ende des Nickerchens.",
           "duration": "Du kannst dies später auf der Geräteseite oder in einem Dashboard ändern."
         }
       },
       "wakeup": {
-        "title": "Aufwachlicht einrichten",
+        "title": "WakeupLight einrichten",
         "description": "Wähle, welche Lichter heller werden und wie das Aufwachen ablaufen soll.",
         "data": {
           "name": "Name",
@@ -53,21 +57,23 @@
   "options": {
     "step": {
       "nap": {
-        "title": "Ziele des Nickerchens bearbeiten",
+        "title": "NapMode-Ziele bearbeiten",
         "description": "Wähle, was dieses Nickerchen zu Beginn und am Ende steuert.",
         "data": {
           "lights": "Lichter oder Bereiche zum Ausschalten",
-          "covers": "Rollos oder Bereiche zum Schließen",
-          "end_lights": "Lichter oder Bereiche zum Einschalten"
+          "covers": "Rollos oder Bereiche zum Schließen und Öffnen",
+          "end_lights": "Lichter oder Bereiche zum Einschalten",
+          "end_script": "Skript am Ende des Nickerchens"
         },
         "data_description": {
           "lights": "Diese werden zu Beginn des Nickerchens ausgeschaltet.",
           "covers": "Diese werden zu Beginn geschlossen und können am Ende wieder geöffnet werden.",
-          "end_lights": "Diese werden am Ende des Nickerchens eingeschaltet."
+          "end_lights": "Diese werden am Ende des Nickerchens eingeschaltet.",
+          "end_script": "Optional. Leere dieses Feld, um kein Skript mehr auszuführen."
         }
       },
       "wakeup": {
-        "title": "Ziele des Aufwachlichts bearbeiten",
+        "title": "WakeupLight-Ziele bearbeiten",
         "description": "Wähle, welche Lichter heller werden und was zur Weckzeit geschieht.",
         "data": {
           "lights": "Lichter oder Bereiche zum Aufblenden",
@@ -85,10 +91,10 @@
   "entity": {
     "switch": {
       "nap_control": {
-        "name": "Nickerchen"
+        "name": "NapMode"
       },
       "wakeup_control": {
-        "name": "Aufwachlicht"
+        "name": "WakeupLight"
       },
       "turn_off_lights_at_start": {
         "name": "Lichter zu Beginn ausschalten"

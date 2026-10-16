@@ -99,7 +99,7 @@ class NapRemainingSensor(WakeupHelperEntity, SensorEntity):
 
 
 class WakeupStatusSensor(WakeupHelperEntity, SensorEntity):
-    """Report the current wake-up light stage."""
+    """Report the current WakeupLight stage."""
 
     _attr_translation_key = "wakeup_status"
     _attr_icon = "mdi:weather-sunset-up"

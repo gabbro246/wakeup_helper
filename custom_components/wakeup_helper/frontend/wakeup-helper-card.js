@@ -1,5 +1,26 @@
 const CARD_TAG = "wakeup-helper-card";
 
+const HIGHLIGHT_COLORS = new Set([
+  "primary",
+  "accent",
+  "red",
+  "pink",
+  "purple",
+  "deep-purple",
+  "indigo",
+  "blue",
+  "light-blue",
+  "cyan",
+  "teal",
+  "green",
+  "light-green",
+  "amber",
+  "orange",
+  "deep-orange",
+  "brown",
+  "blue-grey",
+]);
+
 const escapeHtml = (value) =>
   String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -144,6 +165,16 @@ class WakeupHelperCard extends HTMLElement {
     return entityId ? this._hass?.states[entityId] : undefined;
   }
 
+  _highlightStyle(primary, type) {
+    const configured = primary?.attributes?.wakeup_helper_highlight_color;
+    const color = HIGHLIGHT_COLORS.has(configured)
+      ? configured
+      : type === "wakeup"
+        ? "accent"
+        : "primary";
+    return "--routine-color:var(--" + color + "-color)";
+  }
+
   _secondaryText() {
     const entities = this._entities();
     const primary = this._state(entities.primary);
@@ -268,7 +299,7 @@ class WakeupHelperCard extends HTMLElement {
       this._config.name ||
       primary.attributes.wakeup_helper_name ||
       primary.attributes.friendly_name ||
-      (entities.type === "wakeup" ? "Wake-up light" : "Nap mode");
+      (entities.type === "wakeup" ? "WakeupLight" : "NapMode");
     const icon =
       this._config.icon ||
       (entities.type === "wakeup" ? "mdi:alarm" : "mdi:sleep");
@@ -285,6 +316,8 @@ class WakeupHelperCard extends HTMLElement {
       entities.type +
       " " +
       this._layout() +
+      '" style="' +
+      this._highlightStyle(primary, entities.type) +
       '">' +
       '<div class="tile-main" role="button" tabindex="0" aria-label="Open device"><button class="icon-button" aria-label="Toggle routine">' +
       '<ha-icon icon="' +

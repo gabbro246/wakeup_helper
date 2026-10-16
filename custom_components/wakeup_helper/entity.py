@@ -33,7 +33,7 @@ class WakeupHelperEntity(Entity):
             identifiers={(DOMAIN, entry.entry_id)},
             name=entry.title,
             manufacturer="Wakeup Helper",
-            model="Nap mode" if routine_type == ROUTINE_NAP else "Wake-up light",
+            model="NapMode" if routine_type == ROUTINE_NAP else "WakeupLight",
         )
 
     @property

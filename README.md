@@ -4,87 +4,50 @@
   <img src="custom_components/wakeup_helper/brand/icon.png" alt="Wakeup Helper icon" width="160">
 </p>
 
-Wakeup Helper adds nap routines and wake-up-light alarms to Home Assistant. You
-can create separate routines for different rooms or people.
+Wakeup Helper uses your Home Assistant devices to make sure you get the rest you need and wake up on time.
 
 ## What it does
 
-### Nap mode
+Create separate routines for different rooms or people, all controlled through Home Assistant.
 
-Starting a nap turns off the selected lights and closes the selected covers. At
-the end, it can open the covers and turn on a separately selected set of lights.
-Each start and end action can be enabled or disabled from the routine's device
-page. Switches only appear when a matching target is selected. You can also stop
-the nap early.
+### WakeupLight
 
-### Wake-up light
+Set a daily alarm and wake up gradually as your selected lights slowly brighten before your chosen wake-up time. You can adjust how long the lights take to reach your desired brightness. When the alarm goes off, Wakeup Helper can also open your covers and run a Home Assistant script, for example to play music or make an announcement.
 
-Set a daily alarm and the selected lights gradually brighten before the alarm
-time, reaching the brightness you choose. At alarm time, it can open selected
-covers and run a Home Assistant script, such as one that starts music or makes
-an announcement. After the alarm finishes, it can turn the selected lights off
-again. The light and cover actions can be enabled or disabled from the routine's
-device page.
+### NapMode
 
-Both routines can be controlled from Home Assistant and have a built-in
-dashboard card that shows what is happening and how long is left. Active naps
-and enabled alarms are remembered after Home Assistant restarts.
+Start a timed nap that turns off your lights and closes your covers. When the nap ends, Wakeup Helper can open the covers, turn on a separate set of lights, and run a Home Assistant script to wake you up. You can choose how long you want to rest, stop a nap early, and enable or disable individual actions.
+
+### Dashboard card
+
+The included dashboard card lets you control your routines, adjust alarm times or nap durations, and see when you'll wake up. It offers three different layout options.
+
 
 ## Install with HACS
 
+Make sure you have [HACS](https://hacs.xyz/) installed in Home Assistant.
+
 [![Open Wakeup Helper in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=gabbro246&repository=wakeup_helper&category=integration)
 
-1. Select the button above from a device where you are signed in to Home
-   Assistant, then confirm the repository in HACS.
+1. Click the button above to open Wakeup Helper and confirm adding the repository if prompted.
 2. In HACS, download **Wakeup Helper**.
 3. Restart Home Assistant.
-4. Go to **Settings → Devices & services**, choose **Add integration**, and
-   search for **Wakeup Helper**.
+4. Go to **Settings → Devices & services**, choose **Add integration**, and search for **Wakeup Helper**.
 
-You need [HACS](https://hacs.xyz/) installed first. If the button cannot open
-your Home Assistant, add `https://github.com/gabbro246/wakeup_helper` in HACS
-as an **Integration** repository instead.
+If the button doesn't work, add https://github.com/gabbro246/wakeup_helper through HACS → Custom repositories, selecting Integration as the repository type. Then follow steps 2–4.
 
-## Set up a routine
+## Set up a routine and add it to your dashboard
 
-When adding Wakeup Helper, choose **Nap mode** or **Wake-up light**. Give the
-routine a clear name, such as “Bedroom nap” or “Mia’s wake-up light.” Add more
-routines as needed.
+Choose WakeupLight or NapMode, give your routine a name, and follow the setup steps to select your devices and configure the timing. You can create multiple routines for different rooms or people.
 
-For a nap, select the lights to turn off and covers to close, then choose the
-nap length.
+Once created, you can adjust times, durations, and brightness from the routine's device page. To change the selected devices or scripts, find your routine under Settings → Devices & services → Wakeup Helper and select Configure.
 
-For a wake-up light, select the lights to use, set the alarm time, choose how
-long they should brighten for, and set the final brightness. You can also select
-covers to open and optionally choose a Home Assistant script to run at alarm
-time.
+To add a routine to your dashboard, enter edit mode, add a Wakeup Helper card, and select your routine. The card is included with the integration and requires no additional installation.
 
-After setup, open the routine's device page whenever you want to adjust the
-time, duration, or brightness. To change which room devices a routine uses—or
-to add or remove the morning script—open **Settings → Devices & services →
-Wakeup Helper**, select the routine, and choose **Configure**.
+## Additional information
 
-Each optional target on the Configure screen accepts individual lights or
-covers, whole areas, or both. Nap routines also let you select separate lights
-or areas for the end. Wake-up routines can open their selected covers when the
-alarm time is reached.
+Found a bug or have a suggestion? Feel free to [open an issue](https://github.com/gabbro246/wakeup_helper/issues).
 
-## Add it to your dashboard
+Wakeup Helper is based on my earlier, now deprecated projects [WakeupLight](https://github.com/gabbro246/wakeuplight) and [NapMode](https://github.com/gabbro246/napmode).
 
-In dashboard edit mode, add a **Wakeup Helper** card and select the routine.
-The card lets you turn the routine on or off and adjust the nap length or alarm
-time. It also shows the next wake-up, a countdown, or the time a nap ends.
-
-No separate dashboard download or resource setup is needed.
-
-New cards use a horizontal layout by default. You can choose **Horizontal**,
-**Features**, or **Vertical** under **Content layout** in the card editor.
-Horizontal cards start at 12 × 1 grid cells and can shrink to 8 × 1. Features
-cards place the icon and details above the controls; they start at 6 × 2 and
-can shrink to 4 × 2. Vertical cards start at 6 × 3 and can shrink to 4 × 3.
-Existing cards keep their previous vertical layout until you choose another
-layout.
-
-## License
-
-[MIT](LICENSE)
+Licensed under the [MIT License](LICENSE).
