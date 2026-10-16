@@ -13,6 +13,8 @@ from homeassistant.helpers.selector import (
     NumberSelector,
     NumberSelectorConfig,
     NumberSelectorMode,
+    SelectSelector,
+    SelectSelectorConfig,
     TargetSelector,
     TargetSelectorConfig,
     TextSelector,
@@ -38,8 +40,11 @@ from .const import (
     DEFAULT_ALARM_TIME,
     DEFAULT_BRIGHTNESS,
     DEFAULT_FADE_DURATION,
+    DEFAULT_NAP_HIGHLIGHT_COLOR,
     DEFAULT_NAP_DURATION,
+    DEFAULT_WAKEUP_HIGHLIGHT_COLOR,
     DOMAIN,
+    HIGHLIGHT_COLORS,
     ROUTINE_NAP,
     ROUTINE_WAKEUP,
 )
@@ -99,6 +104,16 @@ def _optional_target(
 
 def _script_selector() -> EntitySelector:
     return EntitySelector(EntitySelectorConfig(domain="script"))
+
+
+def _highlight_color_selector() -> SelectSelector:
+    """Return Home Assistant's theme-aware highlight color choices."""
+    return SelectSelector(
+        SelectSelectorConfig(
+            options=list(HIGHLIGHT_COLORS),
+            translation_key="highlight_color",
+        )
+    )
 
 
 def _nap_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
@@ -276,8 +291,6 @@ class WakeupHelperOptionsFlow(config_entries.OptionsFlow):
             for key in (CONF_LIGHTS, CONF_COVERS, CONF_END_LIGHTS):
                 user_input.setdefault(key, {})
             user_input.setdefault(CONF_END_SCRIPT, None)
-            if CONF_HIGHLIGHT_COLOR in current:
-                user_input[CONF_HIGHLIGHT_COLOR] = current[CONF_HIGHLIGHT_COLOR]
             return self.async_create_entry(title="", data=user_input)
 
         fields: dict[Any, Any] = {
@@ -299,6 +312,14 @@ class WakeupHelperOptionsFlow(config_entries.OptionsFlow):
             )
         else:
             fields[vol.Optional(CONF_END_SCRIPT)] = _script_selector()
+        fields[
+            vol.Required(
+                CONF_HIGHLIGHT_COLOR,
+                default=current.get(
+                    CONF_HIGHLIGHT_COLOR, DEFAULT_NAP_HIGHLIGHT_COLOR
+                ),
+            )
+        ] = _highlight_color_selector()
 
         return self.async_show_form(
             step_id="nap", data_schema=vol.Schema(fields)
@@ -314,8 +335,6 @@ class WakeupHelperOptionsFlow(config_entries.OptionsFlow):
             user_input.setdefault(CONF_LIGHTS, {})
             user_input.setdefault(CONF_COVERS, {})
             user_input.setdefault(CONF_ALARM_SCRIPT, None)
-            if CONF_HIGHLIGHT_COLOR in current:
-                user_input[CONF_HIGHLIGHT_COLOR] = current[CONF_HIGHLIGHT_COLOR]
             return self.async_create_entry(title="", data=user_input)
 
         fields: dict[Any, Any] = {
@@ -332,6 +351,14 @@ class WakeupHelperOptionsFlow(config_entries.OptionsFlow):
             )
         else:
             fields[vol.Optional(CONF_ALARM_SCRIPT)] = _script_selector()
+        fields[
+            vol.Required(
+                CONF_HIGHLIGHT_COLOR,
+                default=current.get(
+                    CONF_HIGHLIGHT_COLOR, DEFAULT_WAKEUP_HIGHLIGHT_COLOR
+                ),
+            )
+        ] = _highlight_color_selector()
 
         return self.async_show_form(
             step_id="wakeup", data_schema=vol.Schema(fields)

@@ -1,8 +1,12 @@
 # Changelog
 
+## 0.4.6
+- Improved which settings appear during setup and later configuration.
+- Fixed removing a previously selected alarm script.
+
 ## 0.4.5
+- Added a choice of highlight colors for each NapMode and WakeupLight card.
 - Added optional scripts that run when a NapMode nap ends.
-- Made setup and later configuration show the appropriate settings.
 - Simplified readme
 
 ## 0.4.4

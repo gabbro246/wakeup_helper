@@ -63,13 +63,15 @@
           "lights": "Lichter oder Bereiche zum Ausschalten",
           "covers": "Rollos oder Bereiche zum Schließen und Öffnen",
           "end_lights": "Lichter oder Bereiche zum Einschalten",
-          "end_script": "Skript am Ende des Nickerchens"
+          "end_script": "Skript am Ende des Nickerchens",
+          "highlight_color": "Hervorhebungsfarbe"
         },
         "data_description": {
           "lights": "Diese werden zu Beginn des Nickerchens ausgeschaltet.",
           "covers": "Diese werden zu Beginn geschlossen und können am Ende wieder geöffnet werden.",
           "end_lights": "Diese werden am Ende des Nickerchens eingeschaltet.",
-          "end_script": "Optional. Leere dieses Feld, um kein Skript mehr auszuführen."
+          "end_script": "Optional. Leere dieses Feld, um kein Skript mehr auszuführen.",
+          "highlight_color": "Wird für die aktive Dashboard-Karte dieser Routine verwendet."
         }
       },
       "wakeup": {
@@ -78,13 +80,39 @@
         "data": {
           "lights": "Lichter oder Bereiche zum Aufblenden",
           "covers": "Rollos oder Bereiche zum Öffnen",
-          "alarm_script": "Skript zur Weckzeit"
+          "alarm_script": "Skript zur Weckzeit",
+          "highlight_color": "Hervorhebungsfarbe"
         },
         "data_description": {
           "lights": "Diese werden vor der Weckzeit allmählich heller.",
           "covers": "Diese werden zur Weckzeit geöffnet.",
-          "alarm_script": "Optional. Leere dieses Feld, um kein Skript mehr auszuführen."
+          "alarm_script": "Optional. Leere dieses Feld, um kein Skript mehr auszuführen.",
+          "highlight_color": "Wird für die aktive Dashboard-Karte dieser Routine verwendet."
         }
+      }
+    }
+  },
+  "selector": {
+    "highlight_color": {
+      "options": {
+        "primary": "Primärfarbe des Themes",
+        "accent": "Akzentfarbe des Themes",
+        "red": "Rot",
+        "pink": "Rosa",
+        "purple": "Violett",
+        "deep-purple": "Dunkelviolett",
+        "indigo": "Indigo",
+        "blue": "Blau",
+        "light-blue": "Hellblau",
+        "cyan": "Cyan",
+        "teal": "Türkis",
+        "green": "Grün",
+        "light-green": "Hellgrün",
+        "amber": "Bernstein",
+        "orange": "Orange",
+        "deep-orange": "Dunkelorange",
+        "brown": "Braun",
+        "blue-grey": "Blaugrau"
       }
     }
   },

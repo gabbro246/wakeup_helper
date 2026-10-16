@@ -63,13 +63,15 @@
           "lights": "Lights or areas to turn off",
           "covers": "Covers or areas to close and open",
           "end_lights": "Lights or areas to turn on",
-          "end_script": "Script to run when nap ends"
+          "end_script": "Script to run when nap ends",
+          "highlight_color": "Highlight color"
         },
         "data_description": {
           "lights": "These turn off when the nap starts.",
           "covers": "These close when the nap starts and can reopen when it ends.",
           "end_lights": "These turn on when the nap ends.",
-          "end_script": "Optional. Clear this field to stop running a script."
+          "end_script": "Optional. Clear this field to stop running a script.",
+          "highlight_color": "Used for this routine's active dashboard card."
         }
       },
       "wakeup": {
@@ -78,13 +80,39 @@
         "data": {
           "lights": "Lights or areas to brighten",
           "covers": "Covers or areas to open",
-          "alarm_script": "Script to run at alarm time"
+          "alarm_script": "Script to run at alarm time",
+          "highlight_color": "Highlight color"
         },
         "data_description": {
           "lights": "These gradually brighten before the alarm time.",
           "covers": "These open when the alarm time is reached.",
-          "alarm_script": "Optional. Clear this field to stop running a script."
+          "alarm_script": "Optional. Clear this field to stop running a script.",
+          "highlight_color": "Used for this routine's active dashboard card."
         }
+      }
+    }
+  },
+  "selector": {
+    "highlight_color": {
+      "options": {
+        "primary": "Theme primary",
+        "accent": "Theme accent",
+        "red": "Red",
+        "pink": "Pink",
+        "purple": "Purple",
+        "deep-purple": "Deep purple",
+        "indigo": "Indigo",
+        "blue": "Blue",
+        "light-blue": "Light blue",
+        "cyan": "Cyan",
+        "teal": "Teal",
+        "green": "Green",
+        "light-green": "Light green",
+        "amber": "Amber",
+        "orange": "Orange",
+        "deep-orange": "Deep orange",
+        "brown": "Brown",
+        "blue-grey": "Blue grey"
       }
     }
   },
