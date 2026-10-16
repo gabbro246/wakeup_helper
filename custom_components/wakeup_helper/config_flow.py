@@ -106,12 +106,20 @@ def _script_selector() -> EntitySelector:
     return EntitySelector(EntitySelectorConfig(domain="script"))
 
 
-def _highlight_color_selector() -> SelectSelector:
-    """Return Home Assistant's theme-aware highlight color choices."""
-    return SelectSelector(
+class HighlightColorSelector(SelectSelector):
+    """Validate named colors while rendering Home Assistant's swatch picker."""
+
+    selector_type = "ui_color"
+
+    def serialize(self) -> dict[str, dict[str, dict[str, Any]]]:
+        """Render the frontend-only color swatch selector."""
+        return {"selector": {"ui_color": {}}}
+
+
+def _highlight_color_selector() -> HighlightColorSelector:
+    return HighlightColorSelector(
         SelectSelectorConfig(
             options=list(HIGHLIGHT_COLORS),
-            translation_key="highlight_color",
         )
     )
 

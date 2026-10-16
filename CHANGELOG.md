@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.4.7
+- Highlight colors are now shown as color dots instead of names.
+
 ## 0.4.6
 - Improved which settings appear during setup and later configuration.
 - Fixed removing a previously selected alarm script.

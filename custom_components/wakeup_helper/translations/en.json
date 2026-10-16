@@ -92,30 +92,6 @@
       }
     }
   },
-  "selector": {
-    "highlight_color": {
-      "options": {
-        "primary": "Theme primary",
-        "accent": "Theme accent",
-        "red": "Red",
-        "pink": "Pink",
-        "purple": "Purple",
-        "deep-purple": "Deep purple",
-        "indigo": "Indigo",
-        "blue": "Blue",
-        "light-blue": "Light blue",
-        "cyan": "Cyan",
-        "teal": "Teal",
-        "green": "Green",
-        "light-green": "Light green",
-        "amber": "Amber",
-        "orange": "Orange",
-        "deep-orange": "Deep orange",
-        "brown": "Brown",
-        "blue-grey": "Blue grey"
-      }
-    }
-  },
   "entity": {
     "switch": {
       "nap_control": {

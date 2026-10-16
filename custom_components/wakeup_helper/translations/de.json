@@ -92,30 +92,6 @@
       }
     }
   },
-  "selector": {
-    "highlight_color": {
-      "options": {
-        "primary": "Primärfarbe des Themes",
-        "accent": "Akzentfarbe des Themes",
-        "red": "Rot",
-        "pink": "Rosa",
-        "purple": "Violett",
-        "deep-purple": "Dunkelviolett",
-        "indigo": "Indigo",
-        "blue": "Blau",
-        "light-blue": "Hellblau",
-        "cyan": "Cyan",
-        "teal": "Türkis",
-        "green": "Grün",
-        "light-green": "Hellgrün",
-        "amber": "Bernstein",
-        "orange": "Orange",
-        "deep-orange": "Dunkelorange",
-        "brown": "Braun",
-        "blue-grey": "Blaugrau"
-      }
-    }
-  },
   "entity": {
     "switch": {
       "nap_control": {
