@@ -69,7 +69,7 @@ DEFAULT_WAKEUP_HIGHLIGHT_COLOR: Final = "accent"
 
 EVENT_WAKEUP: Final = "wakeup_helper_wakeup"
 
-CARD_URL: Final = "/wakeup_helper/wakeup-helper-card.js?v=0.4.7"
+CARD_URL: Final = "/wakeup_helper/wakeup-helper-card.js?v=0.4.8"
 STATIC_URL: Final = "/wakeup_helper"
 
 STORAGE_VERSION: Final = 1

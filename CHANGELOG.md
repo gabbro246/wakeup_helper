@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.8
+- Made setup, configuration, and entity wording clearer and more consistent.
+- Improved dashboard time formatting and screen reader labels.
+
 ## 0.4.7
 - Highlight colors are now shown as color dots instead of names.
 

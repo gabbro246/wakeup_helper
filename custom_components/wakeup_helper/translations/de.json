@@ -3,8 +3,8 @@
   "config": {
     "step": {
       "user": {
-        "title": "Schlafroutine hinzufügen",
-        "description": "Wähle aus, welche Routine du erstellen möchtest. Weitere Routinen können später hinzugefügt werden.",
+        "title": "Routine hinzufügen",
+        "description": "Wähle aus, welche Art von Routine du erstellen möchtest.",
         "menu_options": {
           "nap": "NapMode",
           "wakeup": "WakeupLight"
@@ -12,44 +12,38 @@
       },
       "nap": {
         "title": "NapMode einrichten",
-        "description": "Lege fest, was NapMode steuert, und wähle die anfängliche Dauer.",
+        "description": "Lege fest, was zu Beginn und am Ende deines Nickerchens geschieht.",
         "data": {
           "name": "Name",
-          "lights": "Lichter oder Bereiche zum Ausschalten",
-          "covers": "Rollos oder Bereiche zum Schließen und Öffnen",
-          "end_lights": "Lichter oder Bereiche zum Einschalten am Ende",
-          "end_script": "Skript am Ende des Nickerchens",
-          "duration": "Anfängliche Nickerchen-Dauer"
+          "lights": "Lichter zum Ausschalten",
+          "covers": "Rollos zum Schließen",
+          "end_lights": "Lichter zum Einschalten",
+          "end_script": "Auszuführendes Skript",
+          "duration": "Nickerchen-Dauer"
         },
         "data_description": {
-          "name": "Verwende einen Namen, der das Zimmer oder die Person beschreibt.",
-          "lights": "Wähle die Lichter, die während des Nickerchens ausgeschaltet sein sollen.",
-          "covers": "Wähle die Rollos, die zu Beginn und am Ende gesteuert werden.",
-          "end_lights": "Wähle die Lichter, die am Ende des Nickerchens eingeschaltet werden sollen.",
-          "end_script": "Optional. Verwende ein Skript für Musik, Ansagen oder andere Aktionen am Ende des Nickerchens.",
-          "duration": "Du kannst dies später auf der Geräteseite oder in einem Dashboard ändern."
+          "covers": "Diese können am Ende des Nickerchens auch geöffnet werden.",
+          "end_lights": "Diese werden am Ende des Nickerchens eingeschaltet.",
+          "end_script": "Wird am Ende des Nickerchens ausgeführt."
         }
       },
       "wakeup": {
         "title": "WakeupLight einrichten",
-        "description": "Wähle, welche Lichter heller werden und wie das Aufwachen ablaufen soll.",
+        "description": "Wähle deine Weckzeit und was vor und während des Alarms geschieht.",
         "data": {
           "name": "Name",
-          "lights": "Lichter oder Bereiche zum Aufblenden",
-          "covers": "Rollos oder Bereiche zum Öffnen",
-          "alarm_time": "Anfängliche Weckzeit",
-          "fade_duration": "Anfängliche Aufblenddauer",
-          "brightness": "Anfängliche Endhelligkeit",
-          "alarm_script": "Skript zur Weckzeit"
+          "lights": "Lichter zum Aufblenden",
+          "covers": "Rollos zum Öffnen",
+          "alarm_time": "Weckzeit",
+          "fade_duration": "Aufblenddauer",
+          "brightness": "Endhelligkeit",
+          "alarm_script": "Auszuführendes Skript"
         },
         "data_description": {
-          "name": "Verwende einen Namen, der das Zimmer oder die Person beschreibt.",
-          "lights": "Diese werden vor der Weckzeit allmählich heller.",
-          "covers": "Diese werden zur Weckzeit geöffnet.",
-          "alarm_time": "Zu dieser Zeit erreichen die Lichter ihre Endhelligkeit.",
-          "fade_duration": "So viele Minuten vor der Weckzeit werden die Lichter heller.",
-          "brightness": "Die Helligkeit, die zur Weckzeit erreicht wird.",
-          "alarm_script": "Optional. Ein Skript kann Musik, Rollos, Ansagen oder andere Aktionen starten."
+          "lights": "Diese werden vor dem Alarm allmählich heller.",
+          "covers": "Diese werden geöffnet, wenn der Alarm ausgelöst wird.",
+          "fade_duration": "So lange brauchen die Lichter, um ihre Endhelligkeit zu erreichen.",
+          "alarm_script": "Wird ausgeführt, wenn der Alarm ausgelöst wird."
         }
       }
     }
@@ -57,37 +51,36 @@
   "options": {
     "step": {
       "nap": {
-        "title": "NapMode-Ziele bearbeiten",
-        "description": "Wähle, was dieses Nickerchen zu Beginn und am Ende steuert.",
+        "title": "NapMode konfigurieren",
+        "description": "Wähle die Geräte und Aktionen für dieses Nickerchen aus.",
         "data": {
-          "lights": "Lichter oder Bereiche zum Ausschalten",
-          "covers": "Rollos oder Bereiche zum Schließen und Öffnen",
-          "end_lights": "Lichter oder Bereiche zum Einschalten",
-          "end_script": "Skript am Ende des Nickerchens",
-          "highlight_color": "Hervorhebungsfarbe"
+          "lights": "Lichter zum Ausschalten",
+          "covers": "Rollos zum Schließen",
+          "end_lights": "Lichter zum Einschalten",
+          "end_script": "Auszuführendes Skript",
+          "highlight_color": "Hervorhebungsfarbe der Karte"
         },
         "data_description": {
-          "lights": "Diese werden zu Beginn des Nickerchens ausgeschaltet.",
-          "covers": "Diese werden zu Beginn geschlossen und können am Ende wieder geöffnet werden.",
+          "covers": "Diese können am Ende des Nickerchens auch geöffnet werden.",
           "end_lights": "Diese werden am Ende des Nickerchens eingeschaltet.",
-          "end_script": "Optional. Leere dieses Feld, um kein Skript mehr auszuführen.",
-          "highlight_color": "Wird für die aktive Dashboard-Karte dieser Routine verwendet."
+          "end_script": "Wird am Ende des Nickerchens ausgeführt.",
+          "highlight_color": "Wähle die Hervorhebungsfarbe für die Dashboard-Karte dieser Routine."
         }
       },
       "wakeup": {
-        "title": "WakeupLight-Ziele bearbeiten",
-        "description": "Wähle, welche Lichter heller werden und was zur Weckzeit geschieht.",
+        "title": "WakeupLight konfigurieren",
+        "description": "Wähle die Geräte und Aktionen für dein Aufwachen aus.",
         "data": {
-          "lights": "Lichter oder Bereiche zum Aufblenden",
-          "covers": "Rollos oder Bereiche zum Öffnen",
-          "alarm_script": "Skript zur Weckzeit",
-          "highlight_color": "Hervorhebungsfarbe"
+          "lights": "Lichter zum Aufblenden",
+          "covers": "Rollos zum Öffnen",
+          "alarm_script": "Auszuführendes Skript",
+          "highlight_color": "Hervorhebungsfarbe der Karte"
         },
         "data_description": {
-          "lights": "Diese werden vor der Weckzeit allmählich heller.",
-          "covers": "Diese werden zur Weckzeit geöffnet.",
-          "alarm_script": "Optional. Leere dieses Feld, um kein Skript mehr auszuführen.",
-          "highlight_color": "Wird für die aktive Dashboard-Karte dieser Routine verwendet."
+          "lights": "Diese werden vor dem Alarm allmählich heller.",
+          "covers": "Diese werden geöffnet, wenn der Alarm ausgelöst wird.",
+          "alarm_script": "Wird ausgeführt, wenn der Alarm ausgelöst wird.",
+          "highlight_color": "Wähle die Hervorhebungsfarbe für die Dashboard-Karte dieser Routine."
         }
       }
     }
@@ -116,12 +109,12 @@
         "name": "Rollos zur Weckzeit öffnen"
       },
       "turn_off_lights_after_alarm": {
-        "name": "Lichter nach dem Wecken ausschalten"
+        "name": "Lichter nach dem Alarm ausschalten"
       }
     },
     "number": {
       "nap_duration": {
-        "name": "Dauer"
+        "name": "Nickerchen-Dauer"
       },
       "fade_duration": {
         "name": "Aufblenddauer"
@@ -144,10 +137,10 @@
         }
       },
       "nap_ends": {
-        "name": "Endet"
+        "name": "Nickerchen endet"
       },
       "nap_remaining": {
-        "name": "Verbleibend"
+        "name": "Verbleibende Zeit"
       },
       "wakeup_status": {
         "name": "Status",
@@ -162,7 +155,7 @@
         "name": "Nächster Wecker"
       },
       "wakeup_remaining": {
-        "name": "Verbleibend"
+        "name": "Verbleibende Zeit"
       }
     }
   }

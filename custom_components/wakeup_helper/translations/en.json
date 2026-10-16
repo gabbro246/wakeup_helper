@@ -3,8 +3,8 @@
   "config": {
     "step": {
       "user": {
-        "title": "Add a sleep routine",
-        "description": "Choose the kind of routine you want to create. You can add more routines later.",
+        "title": "Add a routine",
+        "description": "Select the type of routine you want to create.",
         "menu_options": {
           "nap": "NapMode",
           "wakeup": "WakeupLight"
@@ -12,44 +12,38 @@
       },
       "nap": {
         "title": "Set up NapMode",
-        "description": "Choose what NapMode controls and set its initial duration.",
+        "description": "Choose what happens when your nap starts and ends.",
         "data": {
           "name": "Name",
-          "lights": "Lights or areas to turn off",
-          "covers": "Covers or areas to close and open",
-          "end_lights": "Lights or areas to turn on when nap ends",
-          "end_script": "Script to run when nap ends",
-          "duration": "Initial nap duration"
+          "lights": "Lights to turn off",
+          "covers": "Covers to close",
+          "end_lights": "Lights to turn on",
+          "end_script": "Script to run",
+          "duration": "Nap duration"
         },
         "data_description": {
-          "name": "Use a name that identifies the room or person.",
-          "lights": "Choose the lights that should be off during the nap.",
-          "covers": "Choose the covers controlled at the start and end of the nap.",
-          "end_lights": "Choose the lights that should turn on when the nap ends.",
-          "end_script": "Optional. Use a script for music, announcements, or other end-of-nap actions.",
-          "duration": "You can change this later from the device page or a dashboard."
+          "covers": "These can also open when the nap ends.",
+          "end_lights": "These turn on when the nap ends.",
+          "end_script": "Runs when the nap ends."
         }
       },
       "wakeup": {
-        "title": "Set up a WakeupLight",
-        "description": "Choose which lights brighten and how WakeupLight should run.",
+        "title": "Set up WakeupLight",
+        "description": "Choose your wake-up time and what happens before and during the alarm.",
         "data": {
           "name": "Name",
-          "lights": "Lights or areas to brighten",
-          "covers": "Covers or areas to open",
-          "alarm_time": "Initial alarm time",
-          "fade_duration": "Initial fade-in duration",
-          "brightness": "Initial end brightness",
-          "alarm_script": "Script to run at alarm time"
+          "lights": "Lights to brighten",
+          "covers": "Covers to open",
+          "alarm_time": "Alarm time",
+          "fade_duration": "Fade duration",
+          "brightness": "Final brightness",
+          "alarm_script": "Script to run"
         },
         "data_description": {
-          "name": "Use a name that identifies the room or person.",
-          "lights": "These gradually brighten before the alarm time.",
-          "covers": "These open when the alarm time is reached.",
-          "alarm_time": "The time the lights reach their final brightness.",
-          "fade_duration": "How many minutes before the alarm the lights begin to brighten.",
-          "brightness": "The brightness reached at the alarm time.",
-          "alarm_script": "Optional. Use a script for music, covers, announcements, or other actions."
+          "lights": "These gradually brighten before the alarm.",
+          "covers": "These open when the alarm goes off.",
+          "fade_duration": "How long the lights take to reach their final brightness.",
+          "alarm_script": "Runs when the alarm goes off."
         }
       }
     }
@@ -57,37 +51,36 @@
   "options": {
     "step": {
       "nap": {
-        "title": "Edit nap targets",
-        "description": "Choose what this nap controls at the start and end.",
+        "title": "Configure NapMode",
+        "description": "Choose which devices and actions to use for this nap.",
         "data": {
-          "lights": "Lights or areas to turn off",
-          "covers": "Covers or areas to close and open",
-          "end_lights": "Lights or areas to turn on",
-          "end_script": "Script to run when nap ends",
-          "highlight_color": "Highlight color"
+          "lights": "Lights to turn off",
+          "covers": "Covers to close",
+          "end_lights": "Lights to turn on",
+          "end_script": "Script to run",
+          "highlight_color": "Card highlight color"
         },
         "data_description": {
-          "lights": "These turn off when the nap starts.",
-          "covers": "These close when the nap starts and can reopen when it ends.",
+          "covers": "These can also open when the nap ends.",
           "end_lights": "These turn on when the nap ends.",
-          "end_script": "Optional. Clear this field to stop running a script.",
-          "highlight_color": "Used for this routine's active dashboard card."
+          "end_script": "Runs when the nap ends.",
+          "highlight_color": "Choose the highlight color for this routine's dashboard card."
         }
       },
       "wakeup": {
-        "title": "Edit WakeupLight targets",
-        "description": "Choose which lights brighten and what happens at alarm time.",
+        "title": "Configure WakeupLight",
+        "description": "Choose which devices and actions to use for your wake-up.",
         "data": {
-          "lights": "Lights or areas to brighten",
-          "covers": "Covers or areas to open",
-          "alarm_script": "Script to run at alarm time",
-          "highlight_color": "Highlight color"
+          "lights": "Lights to brighten",
+          "covers": "Covers to open",
+          "alarm_script": "Script to run",
+          "highlight_color": "Card highlight color"
         },
         "data_description": {
-          "lights": "These gradually brighten before the alarm time.",
-          "covers": "These open when the alarm time is reached.",
-          "alarm_script": "Optional. Clear this field to stop running a script.",
-          "highlight_color": "Used for this routine's active dashboard card."
+          "lights": "These gradually brighten before the alarm.",
+          "covers": "These open when the alarm goes off.",
+          "alarm_script": "Runs when the alarm goes off.",
+          "highlight_color": "Choose the highlight color for this routine's dashboard card."
         }
       }
     }
@@ -116,18 +109,18 @@
         "name": "Open covers at alarm time"
       },
       "turn_off_lights_after_alarm": {
-        "name": "Turn off lights after alarm"
+        "name": "Turn off lights after the alarm"
       }
     },
     "number": {
       "nap_duration": {
-        "name": "Duration"
+        "name": "Nap duration"
       },
       "fade_duration": {
-        "name": "Fade-in duration"
+        "name": "Fade duration"
       },
       "end_brightness": {
-        "name": "End brightness"
+        "name": "Final brightness"
       }
     },
     "time": {
@@ -144,10 +137,10 @@
         }
       },
       "nap_ends": {
-        "name": "Ends"
+        "name": "Nap ends"
       },
       "nap_remaining": {
-        "name": "Remaining"
+        "name": "Time remaining"
       },
       "wakeup_status": {
         "name": "Status",
@@ -162,7 +155,7 @@
         "name": "Next alarm"
       },
       "wakeup_remaining": {
-        "name": "Remaining"
+        "name": "Time remaining"
       }
     }
   }

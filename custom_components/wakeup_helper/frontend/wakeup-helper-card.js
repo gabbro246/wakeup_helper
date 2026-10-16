@@ -179,8 +179,14 @@ class WakeupHelperCard extends HTMLElement {
     const entities = this._entities();
     const primary = this._state(entities.primary);
     const status = this._state(entities.status)?.state;
-    if (!primary) return "Unavailable";
-    if (primary.state !== "on") return "off";
+    if (
+      !primary ||
+      primary.state === "unavailable" ||
+      primary.state === "unknown"
+    ) {
+      return "Unavailable";
+    }
+    if (primary.state !== "on") return "Off";
     if (status === "alarm") return "Alarm! 🚨";
 
     const endState = this._state(entities.end)?.state;
@@ -191,14 +197,14 @@ class WakeupHelperCard extends HTMLElement {
         Math.ceil((end.getTime() - Date.now()) / 1000),
       );
       if (entities.type === "nap") {
-        return "nap ends " + this._formatTime(end);
+        return "Nap ends at " + this._formatTime(end);
       }
       return this._wakeupText(seconds, entities);
     }
     const seconds = Number(this._state(entities.remaining)?.state);
-    if (!Number.isFinite(seconds)) return "scheduled";
+    if (!Number.isFinite(seconds)) return "Scheduled";
     return entities.type === "nap"
-      ? "nap ends in " + this._formatDuration(seconds)
+      ? "Nap ends in " + this._formatDuration(seconds)
       : this._wakeupText(seconds, entities);
   }
 
@@ -207,53 +213,32 @@ class WakeupHelperCard extends HTMLElement {
     const fadeDuration = Number(this._state(entities.duration)?.state ?? 0);
     if (minutes >= 720) {
       const alarm = this._state(entities.alarmTime)?.state?.slice(0, 5);
-      return alarm ? "alarm at " + alarm : "scheduled";
+      return alarm ? "Alarm at " + alarm : "Scheduled";
     }
     if (minutes > fadeDuration) {
-      return (
-        "alarm in " +
-        Math.floor(minutes / 60) +
-        ":" +
-        String(minutes % 60).padStart(2, "0")
-      );
+      return "Alarm in " + this._formatDuration(minutes * 60);
     }
-    return String(minutes).padStart(2, " ") + " min. left";
+    return this._formatDuration(minutes * 60) + " left";
   }
 
   _formatTime(date) {
     return (
       String(date.getHours()).padStart(2, "0") +
       ":" +
-      String(date.getMinutes()).padStart(2, "0") +
-      ":" +
-      String(date.getSeconds()).padStart(2, "0")
+      String(date.getMinutes()).padStart(2, "0")
     );
   }
 
   _formatDuration(totalSeconds) {
-    const days = Math.floor(totalSeconds / 86400);
-    const hours = Math.floor((totalSeconds % 86400) / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-    if (days) {
-      return (
-        days +
-        "d " +
-        String(hours).padStart(2, "0") +
-        ":" +
-        String(minutes).padStart(2, "0")
-      );
-    }
-    if (hours) {
-      return (
-        hours +
-        ":" +
-        String(minutes).padStart(2, "0") +
-        ":" +
-        String(seconds).padStart(2, "0")
-      );
-    }
-    return minutes + ":" + String(seconds).padStart(2, "0");
+    const totalMinutes = Math.max(0, Math.ceil(totalSeconds / 60));
+    const days = Math.floor(totalMinutes / 1440);
+    const hours = Math.floor((totalMinutes % 1440) / 60);
+    const minutes = totalMinutes % 60;
+    const parts = [];
+    if (days) parts.push(days + " d");
+    if (hours) parts.push(hours + " h");
+    if (minutes || parts.length === 0) parts.push(minutes + " min");
+    return parts.join(" ");
   }
 
   _updateCountdown() {
@@ -307,6 +292,11 @@ class WakeupHelperCard extends HTMLElement {
       entities.type === "wakeup"
         ? this._timeFeature(entities.alarmTime)
         : this._stepperFeature("duration", entities.duration);
+    const openLabel = "Open routine device page";
+    const toggleLabel =
+      entities.type === "nap"
+        ? "Start or stop nap"
+        : "Enable or disable alarm";
     this.shadowRoot.innerHTML =
       "<style>" +
       this._styles() +
@@ -319,7 +309,11 @@ class WakeupHelperCard extends HTMLElement {
       '" style="' +
       this._highlightStyle(primary, entities.type) +
       '">' +
-      '<div class="tile-main" role="button" tabindex="0" aria-label="Open device"><button class="icon-button" aria-label="Toggle routine">' +
+      '<div class="tile-main" role="button" tabindex="0" aria-label="' +
+      openLabel +
+      '"><button class="icon-button" aria-label="' +
+      toggleLabel +
+      '">' +
       '<ha-icon icon="' +
       escapeHtml(icon) +
       '"></ha-icon></button><div class="title">' +
@@ -357,11 +351,11 @@ class WakeupHelperCard extends HTMLElement {
     const state = this._state(entityId);
     const value = state?.state?.slice(0, 5) || "Unavailable";
     return (
-      '<div class="feature time-feature"><button data-time-direction="-1" aria-label="Earlier alarm"' +
+      '<div class="feature time-feature"><button data-time-direction="-1" aria-label="Move alarm 15 minutes earlier"' +
       (state ? "" : " disabled") +
       '>−</button><strong>' +
       escapeHtml(value) +
-      '</strong><button data-time-direction="1" aria-label="Later alarm"' +
+      '</strong><button data-time-direction="1" aria-label="Move alarm 15 minutes later"' +
       (state ? "" : " disabled") +
       ">+</button></div>"
     );
@@ -375,13 +369,13 @@ class WakeupHelperCard extends HTMLElement {
     return (
       '<div class="feature"><button data-number="' +
       kind +
-      '" data-direction="-1" aria-label="Decrease">−</button><strong>' +
+      '" data-direction="-1" aria-label="Decrease nap duration">−</button><strong>' +
       escapeHtml(value) +
       " " +
       escapeHtml(unit) +
       '</strong><button data-number="' +
       kind +
-      '" data-direction="1" aria-label="Increase">+</button></div>'
+      '" data-direction="1" aria-label="Increase nap duration">+</button></div>'
     );
   }
 
@@ -553,22 +547,22 @@ class WakeupHelperCardEditor extends HTMLElement {
     this._nameInput = this.shadowRoot.querySelector(".name");
     this._layoutInput = this.shadowRoot.querySelector(".layout");
     this._layoutInput.hass = this._hass;
-    this._layoutInput.label = "Content layout";
+    this._layoutInput.label = "Layout";
     this._layoutInput.selector = {
       select: {
         mode: "dropdown",
         options: [
           { label: "Horizontal", value: "horizontal" },
-          { label: "Features", value: "features" },
+          { label: "Stacked", value: "features" },
           { label: "Vertical", value: "vertical" },
         ],
       },
     };
     this._nameInput.hass = this._hass;
-    this._nameInput.label = "Custom name (optional)";
+    this._nameInput.label = "Card title (optional)";
     this._nameInput.selector = { text: {} };
 
-    this._picker.label = "Wakeup Helper routine";
+    this._picker.label = "Routine";
     this._picker.includeDomains = ["switch"];
     this._syncPickerEntities();
     this._picker.addEventListener("value-changed", (event) =>
@@ -650,7 +644,7 @@ if (!window.customCards.some((card) => card.type === CARD_TAG)) {
   window.customCards.push({
     type: CARD_TAG,
     name: "Wakeup Helper",
-    description: "A tile-style card for Wakeup Helper routines.",
+    description: "Control your WakeupLight and NapMode routines from your dashboard.",
     preview: true,
     getEntitySuggestion: (hass, entityId) => {
       const entity = hass.states[entityId];
